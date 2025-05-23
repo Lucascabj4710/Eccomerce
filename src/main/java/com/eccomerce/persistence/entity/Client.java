@@ -31,5 +31,9 @@ public class Client {
     @Column(unique = true, nullable = false)
     private String dni;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private UserEntity userEntity;
+
 
 }

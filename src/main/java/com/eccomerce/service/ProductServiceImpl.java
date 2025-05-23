@@ -11,9 +11,10 @@ import org.modelmapper.TypeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,17 +24,19 @@ import java.util.NoSuchElementException;
 @Service
 public class ProductServiceImpl implements ProductService{
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.modelMapper = modelMapper;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @Override
+    @Transactional
     public Map<String,String> createProduct(ProductDto productDto) {
         Map<String, String> response = new HashMap<>();
         try {
@@ -49,10 +52,9 @@ public class ProductServiceImpl implements ProductService{
 
             return response;
         } catch (DataAccessException e) {
-            logger.error("Error en el metodo");
             response.put("status", "Error");
             response.put("mensaje", "error al intentar crear producto");
-
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return response;
         }
 
@@ -64,7 +66,7 @@ public class ProductServiceImpl implements ProductService{
             logger.info("Inicio del metodo getProducts");
             return productRepository.findAll();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error al intentar recuperar la lista de productos");
+            throw new DataAccessResourceFailureException("Error al intentar recuperar la lista de productos");
         }
 
     }
@@ -73,8 +75,10 @@ public class ProductServiceImpl implements ProductService{
     public ProductResponseDto getProductId(Long id) {
 
         Product product = productRepository.findById(id).orElseThrow(()-> new NoSuchElementException("El producto con ID " + id + " no existe"));
+        ProductResponseDto productResponseDto = converterToProductResponseDto(product);
+        productResponseDto.setCategoryDesc(product.getCategory().getName());
 
-        return converterToProductResponseDto(product);
+        return productResponseDto;
     }
 
     @Override
@@ -86,7 +90,7 @@ public class ProductServiceImpl implements ProductService{
 
             return response;
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error al intentar eliminar el producto");
+            throw new DataAccessResourceFailureException("Error al intentar eliminar el producto");
         }
     }
 
@@ -98,7 +102,11 @@ public class ProductServiceImpl implements ProductService{
             Product product = productRepository.findById(id).orElseThrow(()-> new NoSuchElementException("El producto con ID " + id + " no existe"));
             Category category = categoryRepository.findById(productDto.getIdCategory()).orElseThrow(()-> new NoSuchElementException("La categoria con ID " + productDto.getIdCategory() + " no existe"));
 
-            product = converterToProduct(productDto);
+            product.setName(productDto.getName());
+            product.setPrice(productDto.getPrice());
+            product.setColor(productDto.getColor());
+            product.setMaterial(productDto.getMaterial());
+            product.setWaist(productDto.getWaist());
             product.setCategory(category);
             response.put("Status","Producto actualizado exitosamente");
 
@@ -106,33 +114,38 @@ public class ProductServiceImpl implements ProductService{
 
             return response;
         } catch (RuntimeException e) {
-            throw new RuntimeException("Erro al intentar actualizar el producto");
+            throw new DataAccessResourceFailureException("Error al intentar actualizar el producto");
         }
     }
 
     public ProductResponseDto converterToProductResponseDto(Product product){
 
-
-        TypeMap<Product, ProductResponseDto> propertyMapper = modelMapper.createTypeMap(Product.class, ProductResponseDto.class);
-        propertyMapper.addMapping(Product::getName, ProductResponseDto::setName);
-        propertyMapper.addMapping(Product::getPrice, ProductResponseDto::setPrice);
-        propertyMapper.addMapping(Product::getColor,ProductResponseDto::setColor);
-        propertyMapper.addMapping(Product::getMaterial, ProductResponseDto::setMaterial);
-        propertyMapper.addMapping(Product::getWaist,ProductResponseDto::setWaist);
+        if (modelMapper.getTypeMap(Product.class, ProductResponseDto.class) == null) {
+            TypeMap<Product, ProductResponseDto> propertyMapper = modelMapper.createTypeMap(Product.class, ProductResponseDto.class);
+            propertyMapper.addMapping(Product::getName, ProductResponseDto::setName);
+            propertyMapper.addMapping(Product::getPrice, ProductResponseDto::setPrice);
+            propertyMapper.addMapping(Product::getColor,ProductResponseDto::setColor);
+            propertyMapper.addMapping(Product::getMaterial, ProductResponseDto::setMaterial);
+            propertyMapper.addMapping(Product::getWaist,ProductResponseDto::setWaist);
+        }
 
         return modelMapper.map(product, ProductResponseDto.class);
     }
 
     public Product converterToProduct(ProductDto productDto){
 
-        TypeMap<ProductDto, Product> propertyMapper = modelMapper.createTypeMap(ProductDto.class, Product.class);
-        propertyMapper.addMapping(ProductDto::getName, Product::setName);
-        propertyMapper.addMapping(ProductDto::getPrice, Product::setPrice);
-        propertyMapper.addMapping(ProductDto::getColor, Product::setColor);
-        propertyMapper.addMapping(ProductDto::getMaterial, Product::setMaterial);
-        propertyMapper.addMapping(ProductDto::getWaist, Product::setWaist);
+        if (modelMapper.getTypeMap(ProductDto.class, Product.class) == null) {
+            TypeMap<ProductDto, Product> propertyMapper = modelMapper.createTypeMap(ProductDto.class, Product.class);
+            propertyMapper.addMappings(mapper -> mapper.skip(Product::setId)); // Ignorar id
+            propertyMapper.addMapping(ProductDto::getName, Product::setName);
+            propertyMapper.addMapping(ProductDto::getPrice, Product::setPrice);
+            propertyMapper.addMapping(ProductDto::getColor, Product::setColor);
+            propertyMapper.addMapping(ProductDto::getMaterial, Product::setMaterial);
+            propertyMapper.addMapping(ProductDto::getWaist, Product::setWaist);
+        }
 
         return modelMapper.map(productDto, Product.class);
     }
+
 
 }

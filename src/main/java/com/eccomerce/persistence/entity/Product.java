@@ -15,9 +15,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Category category;
-
     private String name;
 
     @Column(nullable = false)
@@ -26,6 +23,10 @@ public class Product {
     private String material;
     private String waist;
 
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    private Category category;
+
     @Column(nullable = false)
-    private String stock;
+    private Integer stock;
 }
