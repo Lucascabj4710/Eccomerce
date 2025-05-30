@@ -1,4 +1,4 @@
-package com.eccomerce.persistence.dto;
+package com.eccomerce.persistence.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

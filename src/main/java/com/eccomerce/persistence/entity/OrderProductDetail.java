@@ -1,5 +1,6 @@
 package com.eccomerce.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,11 +22,14 @@ public class OrderProductDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonBackReference
     private Order order;
 
     @Column(name = "unit_price")
     private Float unitPrice;
+
     private Integer quantity;
+
     private Float discount;
     @Column(name = "price_final")
     private Float priceFinal;

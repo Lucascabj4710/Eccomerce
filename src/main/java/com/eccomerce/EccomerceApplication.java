@@ -3,6 +3,7 @@ package com.eccomerce;
 import com.eccomerce.persistence.entity.RoleEntity;
 import com.eccomerce.persistence.entity.RoleEnum;
 import com.eccomerce.persistence.entity.UserEntity;
+import com.eccomerce.persistence.repository.RoleEntityRepository;
 import com.eccomerce.persistence.repository.UserEntityRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,8 +20,12 @@ public class EccomerceApplication {
 	}
 
 	@Bean
-	CommandLineRunner commandLineRunner(UserEntityRepository userRepository){
+	CommandLineRunner commandLineRunner(UserEntityRepository userRepository, RoleEntityRepository roleEntityRepository){
 		return args -> {
+
+			RoleEntity roleUser = RoleEntity.builder()
+					.roleEnum(RoleEnum.USER)
+					.build();
 
 			RoleEntity roleAdmin = RoleEntity.builder()
 					.roleEnum(RoleEnum.ADMIN)
@@ -36,6 +41,7 @@ public class EccomerceApplication {
 					.roleEntities(Set.of(roleAdmin))
 					.build();
 
+			roleEntityRepository.save(roleUser);
 			userRepository.save(userLucas);
 		};
 	}

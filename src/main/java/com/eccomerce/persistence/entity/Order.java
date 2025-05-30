@@ -1,5 +1,6 @@
 package com.eccomerce.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +23,8 @@ public class Order {
     @OneToOne(targetEntity = Client.class)
     private Client client;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<OrderProductDetail> orderProductDetail;
+    @Column(name = "total_price", nullable = false)
+    private Float totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
@@ -32,11 +33,10 @@ public class Order {
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
 
-    @Column(name = "total_price", nullable = false)
-    private Float totalPrice;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrderProductDetail> orderProductDetail;
 
-    @OneToOne
-    private Shipment shipment;
 
     @PrePersist
     private void generateDate(){

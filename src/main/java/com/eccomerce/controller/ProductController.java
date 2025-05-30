@@ -1,7 +1,6 @@
 package com.eccomerce.controller;
 
-import com.eccomerce.persistence.dto.ProductDto;
-import com.eccomerce.persistence.dto.ProductResponseDto;
+import com.eccomerce.persistence.dto.request.ProductDto;
 import com.eccomerce.service.ProductServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,7 @@ public class ProductController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto){
+
         productService.createProduct(productDto);
 
         return new ResponseEntity<>("Completed", HttpStatus.CREATED);

@@ -1,4 +1,4 @@
-package com.eccomerce.persistence.dto;
+package com.eccomerce.persistence.dto.request;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddresDto {
+public class AddressDto {
 
     private String zipCode;
     private String street;

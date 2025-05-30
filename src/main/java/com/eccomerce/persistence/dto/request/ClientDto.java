@@ -1,4 +1,4 @@
-package com.eccomerce.persistence.dto;
+package com.eccomerce.persistence.dto.request;
 
 import lombok.*;
 
@@ -11,6 +11,7 @@ public class ClientDto {
     private String lastname;
     private String phoneNumber;
     private String dni;
-    private UserDto userDto;
+    private String email;
+    private UserEntityDto userEntityDto;
     
 }

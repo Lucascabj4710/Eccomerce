@@ -1,4 +1,4 @@
-package com.eccomerce.persistence.dto;
+package com.eccomerce.persistence.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,12 +8,8 @@ import lombok.Setter;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserEntityDto {
 
     private String username;
     private String password;
-    private Boolean isEnabled;
-    private Boolean accountNonExpired;
-    private Boolean accountNonLocked;
-    private Boolean credentialsNonExpired;
 }

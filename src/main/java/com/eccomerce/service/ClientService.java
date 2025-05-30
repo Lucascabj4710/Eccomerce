@@ -1,8 +1,8 @@
 package com.eccomerce.service;
 
-import com.eccomerce.persistence.dto.ClientDto;
-import com.eccomerce.persistence.dto.ProductDto;
-import com.eccomerce.persistence.dto.ProductResponseDto;
+import com.eccomerce.persistence.dto.request.ClientDto;
+import com.eccomerce.persistence.dto.request.ProductDto;
+import com.eccomerce.persistence.dto.response.ProductResponseDto;
 import com.eccomerce.persistence.entity.Product;
 
 import java.util.List;

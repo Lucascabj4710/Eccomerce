@@ -1,5 +1,6 @@
 package com.eccomerce.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,10 +27,14 @@ public class Client {
     private String phoneNumber;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Address> addressList;
 
     @Column(unique = true, nullable = false)
     private String dni;
+
+    @Column(nullable = false)
+    private String email;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")

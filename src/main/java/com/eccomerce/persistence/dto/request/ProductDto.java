@@ -1,31 +1,31 @@
-package com.eccomerce.persistence.dto;
+package com.eccomerce.persistence.dto.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@Builder
-public class ProductResponseDto {
+public class ProductDto {
 
+    private Long idCategory;
     private String name;
-    private String categoryDesc;
     private Float price;
     private String color;
     private String material;
     private String waist;
+    private Integer stock;
 
-    public ProductResponseDto() {
+    public ProductDto() {
     }
 
-    public ProductResponseDto(String name, String categoryDesc, Float price, String color, String material, String waist) {
+    public ProductDto(Long idCategory, String name, Float price, String color, String material, String waist, Integer stock) {
+        this.idCategory = idCategory;
         this.name = name;
-        this.categoryDesc = categoryDesc;
         this.price = price;
         this.color = color;
         this.material = material;
         this.waist = waist;
+        this.stock = stock;
     }
+
+
 }
-
-
