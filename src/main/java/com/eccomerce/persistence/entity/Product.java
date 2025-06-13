@@ -17,6 +17,8 @@ public class Product {
 
     private String name;
 
+    private String imageUrl;
+
     @Column(nullable = false)
     private Float price;
     private String color;

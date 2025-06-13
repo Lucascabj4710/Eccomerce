@@ -2,6 +2,7 @@ package com.eccomerce.service;
 
 import com.eccomerce.persistence.dto.request.ClientDto;
 import com.eccomerce.persistence.dto.request.ProductDto;
+import com.eccomerce.persistence.dto.response.ClientResponseDto;
 import com.eccomerce.persistence.dto.response.ProductResponseDto;
 import com.eccomerce.persistence.entity.Product;
 
@@ -14,15 +15,15 @@ public interface ClientService {
     public Map<String, String> createClient(ClientDto clientDto);
 
     // Obtener clientes
-    public List<Product> getClients();
+    public List<ClientResponseDto> getClients();
 
     // Obtener cliente por ID
-    public ProductResponseDto getClientId(Long id);
+    public ClientResponseDto getClientId(Long id);
 
     // Eliminar clientee por ID
     public Map<String, String> deleteClient(Long id);
 
     // Actualizar cliente por ID
-    public Map<String, String> updateClient(Long id, ProductDto product);
+    public Map<String, String> updateClient(Long id, ClientDto clientDto);
 
 }

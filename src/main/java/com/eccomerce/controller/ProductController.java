@@ -5,6 +5,7 @@ import com.eccomerce.service.ProductServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/products")
@@ -17,9 +18,9 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto){
+    public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto, @RequestParam("file")MultipartFile archivo){
 
-        productService.createProduct(productDto);
+        productService.createProduct(productDto, archivo);
 
         return new ResponseEntity<>("Completed", HttpStatus.CREATED);
     }
@@ -37,8 +38,8 @@ public class ProductController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id){
-        productService.updateProduct(id,productDto);
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id, @RequestParam("file")MultipartFile archivo) {
+        productService.updateProduct(id,productDto, archivo);
         return new ResponseEntity<>("COMPLETED UPDATE", HttpStatus.ACCEPTED);
     }
 
