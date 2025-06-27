@@ -23,5 +23,9 @@ public class UserEntityController {
         return userEntityService.createUserEntity(userEntityDto);
     }
 
+    @GetMapping("/login")
+    public String login (){
+        return "login";
+    }
 
 }

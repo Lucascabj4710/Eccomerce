@@ -2,6 +2,8 @@ package com.eccomerce.controller;
 
 import com.eccomerce.persistence.dto.request.ProductDto;
 import com.eccomerce.service.ProductServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +14,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
 
     private final ProductServiceImpl productService;
+    private final ObjectMapper objectMapper;
 
-    public ProductController(ProductServiceImpl productService){
+    public ProductController(ProductServiceImpl productService, ObjectMapper objectMapper){
         this.productService = productService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto, @RequestParam("file")MultipartFile archivo){
+    public ResponseEntity<?> createProduct(@RequestPart(name = "productDto") String productDto, @RequestPart("file")MultipartFile archivo) throws JsonProcessingException {
 
-        productService.createProduct(productDto, archivo);
+        System.out.println(productDto);
+
+        ProductDto productDto2 = objectMapper.readValue(productDto, ProductDto.class);
+
+        productService.createProduct(productDto2, archivo);
 
         return new ResponseEntity<>("Completed", HttpStatus.CREATED);
     }

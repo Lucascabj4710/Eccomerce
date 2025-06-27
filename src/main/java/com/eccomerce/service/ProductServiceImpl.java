@@ -47,18 +47,35 @@ public class ProductServiceImpl implements ProductService{
         Map<String, String> response = new HashMap<>();
         try {
             logger.info("Inicio del metodo createProduct");
+            logger.info("Hola" + productDto.getIdCategory());
 
+            // Verifica si el archivo está vacío. Si no se subió nada, devuelve un error.
             if(file.isEmpty()){
                 return Map.of("ERROR: ", "Archivo vacio");
             }
 
+            // Genera un nombre único para el archivo usando UUID + nombre original.
+            // Evita colisiones de nombres en el servidor.
             String nombreArchivo = UUID.randomUUID() + file.getOriginalFilename();
+
+            // Define la ruta completa donde se guardará el archivo.
+            // Combina la carpeta base (imgFolder) con el nombre generado.
             Path rutaArchivo = Paths.get(imgFolder).resolve(nombreArchivo);
+
+            // Copia el archivo recibido a la carpeta del servidor.
+            // Si ya existe un archivo con ese nombre, lo reemplaza.
             Files.copy(file.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
 
+            // Crea la URL accesible públicamente para la imagen.
+            // Asegura que no tenga barras de más al principio.
             String imageUrl =  "/imgfolder/" + nombreArchivo.replaceFirst("^/+", "");
+
+            // Convierte el DTO recibido (con los datos del producto) en un objeto Product real.
             Product product = converterToProduct(productDto);
+
+            // Asigna al producto la URL de imagen generada, para que quede guardada.
             product.setImageUrl(imageUrl);
+
             Category category = categoryRepository.findById(productDto.getIdCategory())
                     .orElseThrow(()-> new NoSuchElementException("La categoria " + productDto.getIdCategory() + " no existe"));
 
@@ -68,12 +85,17 @@ public class ProductServiceImpl implements ProductService{
 
             return response;
         } catch (DataAccessException e) {
+            logger.error("Error DataAccessException");
             response.put("status", "Error");
             response.put("mensaje", "error al intentar crear producto");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return response;
         } catch (IOException e) {
+            logger.error("Error IOException");
             throw new RuntimeException(e);
+        } catch (Exception e){
+            logger.warn("ERROR Exception");
+            throw e;
         }
 
     }
@@ -120,7 +142,8 @@ public class ProductServiceImpl implements ProductService{
 
         try {
             Product product = productRepository.findById(id).orElseThrow(()-> new NoSuchElementException("El producto con ID " + id + " no existe"));
-            Category category = categoryRepository.findById(productDto.getIdCategory()).orElseThrow(()-> new NoSuchElementException("La categoria con ID " + productDto.getIdCategory() + " no existe"));
+            Category category = categoryRepository.findById(productDto.getIdCategory()).orElseThrow(()-> new NoSuchElementException("La categoria con ID "
+                    + productDto.getIdCategory() + " no existe"));
 
             product.setName(productDto.getName());
             product.setImageUrl(product.getImageUrl());
@@ -161,7 +184,6 @@ public class ProductServiceImpl implements ProductService{
             propertyMapper.addMappings(mapper -> mapper.skip(Product::setId)); // Ignorar id
             propertyMapper.addMappings(mapper -> mapper.skip(Product::setImageUrl)); // Ignorar url
             propertyMapper.addMapping(ProductDto::getName, Product::setName);
-            propertyMapper.addMapping(ProductDto::getImageUrl, Product::setImageUrl);
             propertyMapper.addMapping(ProductDto::getPrice, Product::setPrice);
             propertyMapper.addMapping(ProductDto::getColor, Product::setColor);
             propertyMapper.addMapping(ProductDto::getMaterial, Product::setMaterial);

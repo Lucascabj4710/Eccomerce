@@ -8,8 +8,10 @@ import com.eccomerce.persistence.entity.UserEntity;
 import com.eccomerce.persistence.repository.ClientRepository;
 import com.eccomerce.persistence.repository.RoleEntityRepository;
 import com.eccomerce.persistence.repository.UserEntityRepository;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -47,7 +49,7 @@ public class ClientServiceImpl implements ClientService{
                             .accountNonExpired(true)
                             .roleEntities(Set.of(roleUser))
                             .password(password)
-                            .username(clientDto.getName())
+                            .username(clientDto.getUserEntityDto().getUsername())
                     .build());
 
             clientRepository.save(client);
@@ -87,12 +89,19 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public Map<String, String> updateClient(Long id, ClientDto clientDto) {
+    public Map<String, String> updateClient(ClientDto clientDto) {
 
-        clientRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
 
         try {
-            Client client = convertToClient(clientDto);
+
+            client.setName(clientDto.getName());
+            client.setDni(clientDto.getDni());
+            client.setEmail(clientDto.getEmail());
+            client.setPhoneNumber(clientDto.getPhoneNumber());
+
             clientRepository.save(client);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
@@ -105,6 +114,7 @@ public class ClientServiceImpl implements ClientService{
     public Client convertToClient(ClientDto clientDto){
         if (modelMapper.getTypeMap(ClientDto.class, Client.class) == null){
             TypeMap<ClientDto, Client> propertyMapper = modelMapper.createTypeMap(ClientDto.class, Client.class);
+            propertyMapper.setPropertyCondition(Conditions.isNotNull());
             propertyMapper.addMappings(mapper -> mapper.skip(Client::setId));
             propertyMapper.addMapping(ClientDto::getName, Client::setName);
             propertyMapper.addMapping(ClientDto::getDni, Client::setDni);

@@ -24,6 +24,6 @@ public interface ClientService {
     public Map<String, String> deleteClient(Long id);
 
     // Actualizar cliente por ID
-    public Map<String, String> updateClient(Long id, ClientDto clientDto);
+    public Map<String, String> updateClient(ClientDto clientDto);
 
 }

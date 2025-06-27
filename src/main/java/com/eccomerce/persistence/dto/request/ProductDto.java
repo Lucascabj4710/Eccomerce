@@ -10,7 +10,6 @@ import lombok.Setter;
 public class ProductDto {
 
     private Long idCategory;
-    private String imageUrl;
     private String name;
     private Float price;
     private String color;

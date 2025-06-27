@@ -5,6 +5,7 @@ import com.eccomerce.service.ClientServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class ClientController {
         this.clientServiceImple = clientServiceImple;
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/create")
     public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto){
 
@@ -47,7 +49,7 @@ public class ClientController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateClientID(@PathVariable Long id, @RequestBody ClientDto clientDto){
 
-        return ResponseEntity.ok(clientServiceImple.updateClient(id, clientDto));
+        return ResponseEntity.ok(clientServiceImple.updateClient(clientDto));
     }
 
 }
