@@ -22,7 +22,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProduct(@RequestPart(name = "productDto") String productDto, @RequestPart("file")MultipartFile archivo) throws JsonProcessingException {
+    public ResponseEntity<?> createProduct(@RequestPart(name = "productDto") String productDto, @RequestPart(value = "file", required = false)MultipartFile archivo) throws JsonProcessingException {
 
         System.out.println(productDto);
 
@@ -46,7 +46,9 @@ public class ProductController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id, @RequestParam("file")MultipartFile archivo) {
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id,
+                                           @RequestParam(value = "file", required = false)MultipartFile archivo) {
+
         productService.updateProduct(id,productDto, archivo);
         return new ResponseEntity<>("COMPLETED UPDATE", HttpStatus.ACCEPTED);
     }

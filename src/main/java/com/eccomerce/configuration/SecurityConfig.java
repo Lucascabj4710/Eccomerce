@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/login").permitAll();
                     auth.anyRequest().permitAll();
                 })
                 .formLogin(form -> form

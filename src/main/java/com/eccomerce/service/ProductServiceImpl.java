@@ -1,5 +1,6 @@
 package com.eccomerce.service;
 
+import com.eccomerce.exception.ProductNotFoundException;
 import com.eccomerce.persistence.dto.request.ProductDto;
 import com.eccomerce.persistence.dto.response.ProductResponseDto;
 import com.eccomerce.persistence.entity.Category;
@@ -116,7 +117,7 @@ public class ProductServiceImpl implements ProductService{
     @Transactional(readOnly = true) // Implementa que esta funcion sea solo de lectura
     public ProductResponseDto getProductId(Long id) {
 
-        Product product = productRepository.findById(id).orElseThrow(()-> new NoSuchElementException("El producto con ID " + id + " no existe"));
+        Product product = productRepository.findById(id).orElseThrow(()-> new ProductNotFoundException("El producto con ID " + id + " no existe"));
         ProductResponseDto productResponseDto = converterToProductResponseDto(product);
         productResponseDto.setCategoryDesc(product.getCategory().getName());
 

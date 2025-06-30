@@ -3,9 +3,9 @@ package com.eccomerce.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @NoArgsConstructor @AllArgsConstructor
 @Builder @Setter @Getter
+@Entity
 public class CartDetail {
 
     @Id
@@ -16,18 +16,12 @@ public class CartDetail {
     @JoinColumn(name = "id_cart")
     private Cart cart;
 
-    @ManyToOne( fetch = FetchType.EAGER)
+    @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "id_product")
     private Product product;
     private Long quantity;
     private Float unitPrice;
-    private Float totalPrice;
 
-    @PrePersist
-    @PreUpdate
-    private void calculateTotalPrice(){
-        this.totalPrice = this.unitPrice * this.quantity;
-    }
 
 
 }

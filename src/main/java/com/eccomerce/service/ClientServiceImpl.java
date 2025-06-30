@@ -95,6 +95,7 @@ public class ClientServiceImpl implements ClientService{
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
 
+
         try {
 
             client.setName(clientDto.getName());
