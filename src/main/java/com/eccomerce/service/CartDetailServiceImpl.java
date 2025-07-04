@@ -1,7 +1,9 @@
 package com.eccomerce.service;
 
+import com.eccomerce.exception.ClientNotFoundException;
 import com.eccomerce.persistence.dto.response.CartDetailRequestDto;
 import com.eccomerce.persistence.dto.response.CartDetailResponseDto;
+import com.eccomerce.persistence.dto.response.ProductResponseDto;
 import com.eccomerce.persistence.entity.Cart;
 import com.eccomerce.persistence.entity.CartDetail;
 import com.eccomerce.persistence.entity.Client;
@@ -17,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -93,7 +96,37 @@ public class CartDetailServiceImpl implements CartDetailService{
 
     @Override
     public List<CartDetailResponseDto> getCartDetail() {
-        return List.of();
+
+        String username = getCurrentUsername();
+
+        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("ERROR el cliente " + username + " no existe" ));
+
+        // Verifica si el cliente tiene un carrito creado, caso contrario creara uno
+        Cart cart = cartRepository.findByClientId(client.getId()).orElse(Cart.builder()
+                .client(client)
+                .build());
+        cartRepository.save(cart);
+
+        List<CartDetail> cartDetailList = cartDetailRepository.findAll();
+
+        return  cartDetailList.stream()
+                .map(cartDetail -> {
+                    return CartDetailResponseDto.builder()
+                            .productResponseDto(ProductResponseDto.builder()
+                                    .name(cartDetail.getProduct().getName())
+                                    .imageUrl(cartDetail.getProduct().getImageUrl())
+                                    .categoryDesc(cartDetail.getProduct().getCategory().getName())
+                                    .price(cartDetail.getProduct().getPrice())
+                                    .color(cartDetail.getProduct().getColor())
+                                    .material(cartDetail.getProduct().getMaterial())
+                                    .waist(cartDetail.getProduct().getWaist())
+                                    .build())
+                            .quantity(cartDetail.getQuantity())
+                            .unitPrice(cartDetail.getUnitPrice())
+                            .totalPrice(cartDetail.getUnitPrice())
+                            .build();
+                })
+                .toList();
     }
 
     @Override
@@ -103,11 +136,21 @@ public class CartDetailServiceImpl implements CartDetailService{
 
     @Override
     public Map<String, String> deleteCartDetail(Long id) {
+
+
+
+
+
         return Map.of();
     }
 
     @Override
     public Map<String, String> updateCartDetail(Long id, CartDetailRequestDto cartDetailRequestDto) {
         return Map.of();
+    }
+
+
+    private String getCurrentUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
