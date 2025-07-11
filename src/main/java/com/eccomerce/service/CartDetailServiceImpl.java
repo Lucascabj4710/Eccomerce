@@ -1,13 +1,12 @@
 package com.eccomerce.service;
 
+import com.eccomerce.exception.CartDetailNotFoundException;
 import com.eccomerce.exception.ClientNotFoundException;
+import com.eccomerce.exception.InvalidStockException;
 import com.eccomerce.persistence.dto.response.CartDetailRequestDto;
 import com.eccomerce.persistence.dto.response.CartDetailResponseDto;
 import com.eccomerce.persistence.dto.response.ProductResponseDto;
-import com.eccomerce.persistence.entity.Cart;
-import com.eccomerce.persistence.entity.CartDetail;
-import com.eccomerce.persistence.entity.Client;
-import com.eccomerce.persistence.entity.Product;
+import com.eccomerce.persistence.entity.*;
 import com.eccomerce.persistence.repository.CartDetailRepository;
 import com.eccomerce.persistence.repository.CartRepository;
 import com.eccomerce.persistence.repository.ClientRepository;
@@ -19,10 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -46,8 +42,11 @@ public class CartDetailServiceImpl implements CartDetailService{
 
         Product product = productRepository.findById(cartDetailRequestDto.getProduct()).orElseThrow(()-> new NoSuchElementException("El producto no existe"));
 
+        if (product.getStock() == 0 || product.getStock() < cartDetailRequestDto.getQuantity()) {
+            log.error("No hay suficiente stock para agregar al carrito");
+            throw new InvalidStockException("No hay suficiente stock para agregar al carrito");
+        }
         // Obtiene el nombre de usuario del cliente actualmente logueado
-
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("HOLAAAAA" +username);
         //String username = "lucas";
@@ -56,15 +55,17 @@ public class CartDetailServiceImpl implements CartDetailService{
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
 
         // Verifica si el cliente tiene un carrito creado, caso contrario creara uno
-        if (cartRepository.findByClientId(client.getId()).isEmpty()){
-            Cart cart = Cart.builder()
+        Optional<Cart> optionalCart = cartRepository.findByClientId(client.getId());
+        Cart cart;
+
+        if (optionalCart.isPresent()) {
+            cart = optionalCart.get();
+        } else {
+            cart = Cart.builder()
                     .client(client)
                     .build();
             cartRepository.save(cart);
         }
-
-
-        Cart cart = cartRepository.findByClientId(client.getId()).orElseThrow(()-> new NoSuchElementException("El carrito no existe"));
 
         if(cartDetailRepository.verificarCarritoDetalle(cart.getId(), product.getId()).isPresent()){
 
@@ -123,7 +124,6 @@ public class CartDetailServiceImpl implements CartDetailService{
                                     .build())
                             .quantity(cartDetail.getQuantity())
                             .unitPrice(cartDetail.getUnitPrice())
-                            .totalPrice(cartDetail.getUnitPrice())
                             .build();
                 })
                 .toList();
@@ -135,18 +135,31 @@ public class CartDetailServiceImpl implements CartDetailService{
     }
 
     @Override
-    public Map<String, String> deleteCartDetail(Long id) {
+    public ResponseEntity<?> deleteCartDetail(Long id) {
 
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(()-> new CartDetailNotFoundException("El ID " + id + " no existe"));
+        cartDetailRepository.delete(cartDetail);
 
-
-
-
-        return Map.of();
+        return ResponseEntity.ok("Hola");
     }
 
     @Override
-    public Map<String, String> updateCartDetail(Long id, CartDetailRequestDto cartDetailRequestDto) {
-        return Map.of();
+    public ResponseEntity<?> updateCartDetail(Long id, Long quantity) {
+
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(()-> new CartDetailNotFoundException("El ID " + id + " no existe"));
+
+        if (quantity <= 0){
+            throw new InvalidStockException("La cantidad de stock ingresado debe ser mayor a cero");
+        }
+
+        if (!cartDetail.getQuantity().equals(quantity)){
+
+            cartDetail.setQuantity(quantity);
+            cartDetailRepository.save(cartDetail);
+        }
+
+
+        return ResponseEntity.ok("Hola");
     }
 
 

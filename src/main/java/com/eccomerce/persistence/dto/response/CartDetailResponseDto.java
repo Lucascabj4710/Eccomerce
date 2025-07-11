@@ -12,6 +12,5 @@ public class CartDetailResponseDto {
     private ProductResponseDto productResponseDto;
     private Long quantity;
     private Float unitPrice;
-    private Float totalPrice;
 
 }

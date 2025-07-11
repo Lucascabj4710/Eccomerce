@@ -19,31 +19,7 @@ public class EccomerceApplication {
 		SpringApplication.run(EccomerceApplication.class, args);
 	}
 
-	@Bean
-	CommandLineRunner commandLineRunner(UserEntityRepository userRepository, RoleEntityRepository roleEntityRepository){
-		return args -> {
 
-			RoleEntity roleUser = RoleEntity.builder()
-					.roleEnum(RoleEnum.USER)
-					.build();
 
-			RoleEntity roleAdmin = RoleEntity.builder()
-					.roleEnum(RoleEnum.ADMIN)
-					.build();
-
-			UserEntity userLucas = UserEntity.builder()
-					.username("lucas")
-					.password("$2a$10$OdCM4qb4u4ZKcrP8Un3E3uoK9znxE0Vg6DCEUQlOn1YCkCXuoZjDC")
-					.accountNonExpired(true)
-					.accountNonLocked(true)
-					.credentialsNonExpired(true)
-					.isEnabled(true)
-					.roleEntities(Set.of(roleAdmin))
-					.build();
-
-			roleEntityRepository.save(roleUser);
-			userRepository.save(userLucas);
-		};
-	}
 
 }

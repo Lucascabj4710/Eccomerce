@@ -12,7 +12,7 @@ public interface CartDetailService {
     ResponseEntity<?> createCartDetail(CartDetailRequestDto cartDetailRequestDto);
     List<CartDetailResponseDto> getCartDetail();
     CartDetailResponseDto getCartDetailID(Long id);
-    Map<String, String> deleteCartDetail(Long id);
-    Map<String, String> updateCartDetail(Long id, CartDetailRequestDto cartDetailRequestDto);
+    ResponseEntity<?> deleteCartDetail(Long id);
+    ResponseEntity<?> updateCartDetail(Long id, Long quantity);
 
 }

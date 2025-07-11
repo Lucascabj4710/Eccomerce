@@ -33,7 +33,8 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
-    private final String imgFolder = "imgfolder/"; // para la ruta en disco
+    // Definilo en tu clase Service (fuera del método)
+    private final String imgFolder = "C:/Users/lucas/Documents/IntelliJ proyectos/eccomerce/src/main/resources/static/imgfolder";
 
 
     public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, CategoryRepository categoryRepository) {
@@ -44,62 +45,71 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public Map<String,String> createProduct(ProductDto productDto, MultipartFile file) {
+    public Map<String, String> createProduct(ProductDto productDto, MultipartFile file) {
         Map<String, String> response = new HashMap<>();
         try {
-            logger.info("Inicio del metodo createProduct");
-            logger.info("Hola" + productDto.getIdCategory());
+            logger.info("[CREATE_PRODUCT] Inicio del método createProduct");
 
-            // Verifica si el archivo está vacío. Si no se subió nada, devuelve un error.
-            if(file.isEmpty()){
-                return Map.of("ERROR: ", "Archivo vacio");
+            logger.debug("[CREATE_PRODUCT] DTO recibido: {}", productDto);
+            logger.debug("[CREATE_PRODUCT] ID de categoría recibido: {}", productDto.getIdCategory());
+
+            // Verifica si el archivo está vacío.
+            if (file.isEmpty()) {
+                logger.warn("[CREATE_PRODUCT] Archivo recibido está vacío");
+                return Map.of("ERROR", "Archivo vacío");
             }
 
-            // Genera un nombre único para el archivo usando UUID + nombre original.
-            // Evita colisiones de nombres en el servidor.
-            String nombreArchivo = UUID.randomUUID() + file.getOriginalFilename();
+            logger.info("[CREATE_PRODUCT] Archivo recibido: Nombre original = {}, Tamaño = {} bytes",
+                    file.getOriginalFilename(), file.getSize());
 
-            // Define la ruta completa donde se guardará el archivo.
-            // Combina la carpeta base (imgFolder) con el nombre generado.
+            String nombreArchivo = UUID.randomUUID() + file.getOriginalFilename();
             Path rutaArchivo = Paths.get(imgFolder).resolve(nombreArchivo);
 
-            // Copia el archivo recibido a la carpeta del servidor.
-            // Si ya existe un archivo con ese nombre, lo reemplaza.
+            logger.debug("[CREATE_PRODUCT] Ruta de archivo generada: {}", rutaArchivo);
+
             Files.copy(file.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
 
-            // Crea la URL accesible públicamente para la imagen.
-            // Asegura que no tenga barras de más al principio.
-            String imageUrl =  "/imgfolder/" + nombreArchivo.replaceFirst("^/+", "");
+            logger.info("[CREATE_PRODUCT] Archivo copiado correctamente en {}", rutaArchivo);
 
-            // Convierte el DTO recibido (con los datos del producto) en un objeto Product real.
+            String imageUrl = "/imgfolder/" + nombreArchivo.replaceFirst("^/+", "");
+            logger.debug("[CREATE_PRODUCT] URL de imagen asignada: {}", imageUrl);
+
             Product product = converterToProduct(productDto);
-
-            // Asigna al producto la URL de imagen generada, para que quede guardada.
             product.setImageUrl(imageUrl);
 
+            logger.debug("[CREATE_PRODUCT] Producto convertido desde DTO: {}", product);
+
             Category category = categoryRepository.findById(productDto.getIdCategory())
-                    .orElseThrow(()-> new NoSuchElementException("La categoria " + productDto.getIdCategory() + " no existe"));
+                    .orElseThrow(() -> {
+                        logger.error("[CREATE_PRODUCT] No se encontró categoría con ID {}", productDto.getIdCategory());
+                        return new NoSuchElementException("La categoría " + productDto.getIdCategory() + " no existe");
+                    });
+
+            logger.info("[CREATE_PRODUCT] Categoría encontrada: {}", category.getName());
 
             product.setCategory(category);
             productRepository.save(product);
-            response.put("Mensaje", "Producto cargado exitosamente");
 
+            logger.info("[CREATE_PRODUCT] Producto guardado exitosamente con ID {}", product.getId());
+
+            response.put("Mensaje", "Producto cargado exitosamente");
             return response;
+
         } catch (DataAccessException e) {
-            logger.error("Error DataAccessException");
+            logger.error("[CREATE_PRODUCT] Error de acceso a datos: {}", e.getMessage(), e);
             response.put("status", "Error");
-            response.put("mensaje", "error al intentar crear producto");
+            response.put("mensaje", "Error al intentar crear producto");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return response;
         } catch (IOException e) {
-            logger.error("Error IOException");
+            logger.error("[CREATE_PRODUCT] Error de IO al procesar archivo: {}", e.getMessage(), e);
             throw new RuntimeException(e);
-        } catch (Exception e){
-            logger.warn("ERROR Exception");
+        } catch (Exception e) {
+            logger.error("[CREATE_PRODUCT] Error inesperado: {}", e.getMessage(), e);
             throw e;
         }
-
     }
+
 
     @Override
     @Transactional(readOnly = true)
