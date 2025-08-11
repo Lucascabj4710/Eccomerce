@@ -1,6 +1,7 @@
 package com.eccomerce.configuration;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -41,11 +42,21 @@ public class SecurityConfig {
                 })
                 .formLogin(form -> form
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK); // 200 OK
+                            // No redirect
+                        })
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         })
                 )
+
+                .logout(out -> out
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("http://127.0.0.1:5501/index.html")
+                                .invalidateHttpSession(true)
+                                .deleteCookies("JSESSIONID")
+                        )
                 .build();
 
     }
@@ -84,6 +95,8 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 
 
 }
