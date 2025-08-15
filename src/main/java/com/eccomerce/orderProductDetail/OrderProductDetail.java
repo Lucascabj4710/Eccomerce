@@ -30,7 +30,7 @@ public class OrderProductDetail {
     @Column(name = "unit_price")
     private Float unitPrice;
 
-    private Integer quantity;
+    private Long quantity;
 
     private Float discount;
     @Column(name = "price_final")

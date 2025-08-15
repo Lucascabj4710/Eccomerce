@@ -53,9 +53,9 @@ public class CartDetailServiceImpl implements CartDetailService{
             throw new InvalidStockException("No hay suficiente stock para agregar al carrito");
         }
         // Obtiene el nombre de usuario del cliente actualmente logueado
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.debug(username);
-//        String username = "amendolarafran";
+      //  String username = SecurityContextHolder.getContext().getAuthentication().getName();
+       // log.debug(username);
+         String username = "lucas";
 
         // Busca el cliente asociado al USERNAME del usuario logueado
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));

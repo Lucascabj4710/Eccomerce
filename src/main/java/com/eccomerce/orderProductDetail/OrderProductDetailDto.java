@@ -8,7 +8,7 @@ import lombok.*;
 public class OrderProductDetailDto {
 
     private Long idProduct;
-    private Integer quantity;
+    private Long quantity;
     private Float discount;
 
 }

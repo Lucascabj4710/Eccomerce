@@ -4,6 +4,9 @@ import com.eccomerce.product.dto.ProductDto;
 import com.eccomerce.product.service.ProductServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +43,9 @@ public class ProductController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getProduct(){
+    public ResponseEntity<?> getProduct(@PageableDefault(page = 0,size = 10, sort = "price", direction = Sort.Direction.DESC) Pageable pageable){
 
-        return new ResponseEntity<>(productService.getProducts(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(productService.getProducts(pageable), HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/update/{id}")

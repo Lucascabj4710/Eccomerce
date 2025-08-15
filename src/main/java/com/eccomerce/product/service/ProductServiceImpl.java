@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -116,10 +118,10 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> getProducts() {
+    public Page<Product> getProducts(Pageable pageable) {
         try {
             logger.info("Inicio del metodo getProducts");
-            return productRepository.findAll();
+            return productRepository.findAll(pageable);
         } catch (DataAccessException e) {
             throw new DataAccessResourceFailureException("Error al intentar recuperar la lista de productos");
         }

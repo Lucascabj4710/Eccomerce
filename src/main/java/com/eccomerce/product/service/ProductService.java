@@ -3,6 +3,8 @@ package com.eccomerce.product.service;
 import com.eccomerce.product.entity.Product;
 import com.eccomerce.product.dto.ProductDto;
 import com.eccomerce.product.dto.ProductResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,7 +16,7 @@ public interface ProductService {
     public Map<String, String> createProduct(ProductDto productDto, MultipartFile archivo);
 
     // Obtener productos
-    public List<Product> getProducts();
+    public Page<Product> getProducts(Pageable pageable);
 
     // Obtener producto por ID
     public ProductResponseDto getProductId(Long id);

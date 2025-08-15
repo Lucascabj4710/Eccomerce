@@ -25,6 +25,7 @@ public class Product {
     private String color;
     private String material;
     private String waist;
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "id_category")

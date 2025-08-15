@@ -19,8 +19,10 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(targetEntity = Client.class)
+    @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
@@ -28,6 +30,9 @@ public class Order {
 
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
+
+    @Column(name = "price_final")
+    private Float priceFinal;
 
 //    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 //    @JsonManagedReference
