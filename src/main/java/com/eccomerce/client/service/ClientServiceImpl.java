@@ -104,6 +104,7 @@ public class ClientServiceImpl implements ClientService{
             propertyMapper.setPropertyCondition(Conditions.isNotNull());
             propertyMapper.addMappings(mapper -> mapper.skip(Client::setId));
             propertyMapper.addMapping(ClientDto::getName, Client::setName);
+            propertyMapper.addMapping(ClientDto::getLastname, Client::setLastName);
             propertyMapper.addMapping(ClientDto::getDni, Client::setDni);
             propertyMapper.addMapping(ClientDto::getEmail, Client::setEmail);
             propertyMapper.addMapping(ClientDto::getPhoneNumber, Client::setPhoneNumber);

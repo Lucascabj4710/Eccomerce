@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter @Setter
 public class ProductDto {
 
+    private String imageUrl;
     private Long idCategory;
     private String name;
     private Float price;

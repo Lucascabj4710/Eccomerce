@@ -60,7 +60,10 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
 
     @Override
     public List<OrderProductDetail> getAllOrderProductDetail() {
-        return List.of();
+
+
+
+        return orderProductDetailRepository.findAll();
     }
 
     @Override

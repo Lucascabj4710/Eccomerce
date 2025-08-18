@@ -157,26 +157,42 @@ public class ProductServiceImpl implements ProductService{
         Map<String, String> response = new HashMap<>();
 
         try {
-            Product product = productRepository.findById(id).orElseThrow(()-> new NoSuchElementException("El producto con ID " + id + " no existe"));
-            Category category = categoryRepository.findById(productDto.getIdCategory()).orElseThrow(()-> new NoSuchElementException("La categoria con ID "
-                    + productDto.getIdCategory() + " no existe"));
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("El producto con ID " + id + " no existe"));
+            Category category = categoryRepository.findById(productDto.getIdCategory())
+                    .orElseThrow(() -> new NoSuchElementException("La categoría con ID " + productDto.getIdCategory() + " no existe"));
 
+            // Actualizar campos básicos
             product.setName(productDto.getName());
-            product.setImageUrl(product.getImageUrl());
             product.setPrice(productDto.getPrice());
             product.setColor(productDto.getColor());
             product.setMaterial(productDto.getMaterial());
             product.setWaist(productDto.getWaist());
             product.setCategory(category);
-            response.put("Status","Producto actualizado exitosamente");
+
+            // Si viene un archivo, lo guardamos y actualizamos la URL
+            if (file != null && !file.isEmpty()) {
+                String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+                String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
+                Path rutaArchivo = Paths.get(imgFolder).resolve(nombreArchivo);
+                file.transferTo(rutaArchivo.toFile());
+                String imageUrl = "/imgfolder/" + nombreArchivo; // Ajusta según tu endpoint público
+                product.setImageUrl(imageUrl);
+                logger.debug("[UPDATE_PRODUCT] URL de imagen asignada: {}", imageUrl);
+            }
 
             productRepository.save(product);
+            response.put("Status", "Producto actualizado exitosamente");
 
             return response;
+
         } catch (RuntimeException e) {
-            throw new DataAccessResourceFailureException("Error al intentar actualizar el producto");
+            throw new DataAccessResourceFailureException("Error al intentar actualizar el producto", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
 
 //    public ProductResponseDto converterToProductResponseDto(Product product){
 //

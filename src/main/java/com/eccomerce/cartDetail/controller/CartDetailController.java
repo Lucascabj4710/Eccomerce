@@ -2,6 +2,7 @@ package com.eccomerce.cartDetail.controller;
 
 import com.eccomerce.cartDetail.service.CartDetailServiceImpl;
 import com.eccomerce.cartDetail.dto.CartDetailRequestDto;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class CartDetailController {
     }
 
     @PostMapping("create")
-    public ResponseEntity<?> createCartDetail(@RequestBody CartDetailRequestDto cartDetailRequestDto){
+    public ResponseEntity<?> createCartDetail(@RequestBody @Valid CartDetailRequestDto cartDetailRequestDto){
 
          return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.createCartDetail(cartDetailRequestDto));
     }

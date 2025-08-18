@@ -22,10 +22,19 @@ public class OrderProductDetailController {
         return new ResponseEntity<>(orderDetailService.createOrderProductDetail(orderProductDetail), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<?> getOrderDetail(){
+
+        return ResponseEntity.status(HttpStatus.OK).body(orderDetailService.getAllOrderProductDetail());
+    }
+
+
+
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteOrderDetail(@PathVariable Long id){
 
         return new ResponseEntity<>(orderDetailService.deleteOrderProductDetail(id), HttpStatus.OK);
     }
+
 
 }

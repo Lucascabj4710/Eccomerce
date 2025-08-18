@@ -2,6 +2,7 @@ package com.eccomerce.client.controller;
 
 import com.eccomerce.client.dto.ClientDto;
 import com.eccomerce.client.service.ClientServiceImpl;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class ClientController {
 
     @CrossOrigin(origins = "*")
     @PostMapping("/create")
-    public ResponseEntity<?> createClient(@RequestBody ClientDto clientDto){
+    public ResponseEntity<?> createClient(@RequestBody @Valid ClientDto clientDto){
 
         clientServiceImple.createClient(clientDto);
 
@@ -46,7 +47,7 @@ public class ClientController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateClientID(@PathVariable Long id, @RequestBody ClientDto clientDto){
+    public ResponseEntity<?> updateClientID(@PathVariable Long id, @RequestBody @Valid ClientDto clientDto){
 
         return ResponseEntity.ok(clientServiceImple.updateClient(clientDto));
     }
