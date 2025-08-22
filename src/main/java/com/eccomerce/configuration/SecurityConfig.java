@@ -40,6 +40,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/login").permitAll();
                     auth.anyRequest().permitAll();
                 })
+
                 .formLogin(form -> form
                         .loginProcessingUrl("/login")
                         .successHandler((request, response, authentication) -> {

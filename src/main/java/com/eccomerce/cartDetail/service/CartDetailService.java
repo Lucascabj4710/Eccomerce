@@ -10,7 +10,7 @@ public interface CartDetailService {
     Map<String, String> createCartDetail(CartDetailRequestDto cartDetailRequestDto);
     List<CartDetailResponseDto> getCartDetail();
     CartDetailResponseDto getCartDetailID(Long id);
-    Map<String, String> deleteCartDetail(Long id);
+    Map<String, String> deleteCartDetail(Long idCart, String productName);
     Map<String, String> updateCartDetail(Long id, Long quantity);
 
 }

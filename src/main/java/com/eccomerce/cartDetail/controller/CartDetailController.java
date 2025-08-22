@@ -35,10 +35,10 @@ public class CartDetailController {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.getCartDetailID(id));
     }
 
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<?> deleteCartDetail(@PathVariable Long id){
+    @DeleteMapping("delete/{id}/{productName}")
+    public ResponseEntity<?> deleteCartDetail(@PathVariable Long id, @PathVariable String productName){
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.deleteCartDetail(id));
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.deleteCartDetail(id, productName));
     }
 
     @PutMapping("update/{id}")

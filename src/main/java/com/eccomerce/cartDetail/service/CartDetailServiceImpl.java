@@ -104,8 +104,8 @@ public class CartDetailServiceImpl implements CartDetailService{
     @Override
     public List<CartDetailResponseDto> getCartDetail() {
 
-         String username = getCurrentUsername();
-//        String username = "lucas";
+        // String username = getCurrentUsername();
+        String username = "lucas";
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("ERROR el cliente " + username + " no existe" ));
 
@@ -129,12 +129,12 @@ public class CartDetailServiceImpl implements CartDetailService{
     }
 
     @Override
-    public Map<String, String> deleteCartDetail(Long id) {
+    public Map<String, String> deleteCartDetail(Long idCart, String productName) {
 
 
+        Long idCartDetail = cartDetailRepository.IdCarritoDetalle(idCart, productName).orElseThrow(()-> new CartDetailNotFoundException("Error no existe el cartDetail con ese id"));
 
-
-        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(()-> new CartDetailNotFoundException("El ID " + id + " no existe"));
+        CartDetail cartDetail = cartDetailRepository.findById(idCartDetail).orElseThrow(()-> new CartDetailNotFoundException("El ID " + idCartDetail + " no existe"));
         cartDetailRepository.delete(cartDetail);
 
         return Map.of("STATUS", "COMPLETED");

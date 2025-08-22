@@ -6,7 +6,7 @@ import java.util.Map;
 public interface OrderProductDetailService {
 
     public Map<String, String> createOrderProductDetail(OrderProductDetailDto orderProductDetailDto);
-    public List<OrderProductDetail> getAllOrderProductDetail();
+    public List<OrderProductDetailResponse> getAllOrderProductDetail();
     public OrderProductDetail getOrderProductDetailID(Long id);
     public Map<String, String> deleteOrderProductDetail(Long id);
     public Map<String, String> updateOrderProductDetail(Long id, OrderProductDetail orderProductDetail);

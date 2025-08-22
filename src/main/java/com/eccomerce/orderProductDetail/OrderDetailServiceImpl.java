@@ -33,7 +33,7 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
     @Override
     public Map<String, String> createOrderProductDetail(OrderProductDetailDto orderProductDetailDto) {
 
-        Product product = productRepository.findById(orderProductDetailDto.getIdProduct()).orElseThrow(()-> new ProductNotFoundException(""));
+        Product product = productRepository.findByName(orderProductDetailDto.getProductName()).orElseThrow(()-> new ClientNotFoundException("El cliente no existe"));
 
         OrderProductDetail orderProductDetail = OrderProductDetail.builder()
                 .product(product)
@@ -59,11 +59,26 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
     }
 
     @Override
-    public List<OrderProductDetail> getAllOrderProductDetail() {
+    public List<OrderProductDetailResponse> getAllOrderProductDetail() {
 
+        // String username = getCurrentUsername();
+        String username = "lucas";
+        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("No existe un cliente con ese username"));
 
-
-        return orderProductDetailRepository.findAll();
+        return orderProductDetailRepository.findAll().stream()
+                .map(orderProductDetail -> {
+                    return OrderProductDetailResponse.builder()
+                            .productName(orderProductDetail.getProduct().getName())
+                            .idProduct(orderProductDetail.getProduct().getId())
+                            .discount(orderProductDetail.getDiscount())
+                            .unitPrice(orderProductDetail.getUnitPrice())
+                            .priceFinal(orderProductDetail.getPriceFinal())
+                            .idOrder(orderProductDetail.getOrder().getId())
+                            .quantity(orderProductDetail.getQuantity())
+                            .clientName(client.getName() + " " + client.getLastName())
+                            .idClient(client.getId())
+                            .build();
+                }).toList();
     }
 
     @Override

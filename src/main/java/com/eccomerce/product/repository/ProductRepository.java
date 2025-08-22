@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Transactional
@@ -14,4 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("UPDATE Product as p SET p.stock = p.stock - :stock WHERE id = :id")
     void discountProductStock( @Param("stock") Long stock, @Param("id") Long id);
 
+    @Query("SELECT p FROM Product as p WHERE p.name = :name")
+    Optional<Product> findByName(@Param("name") String productName);
 }

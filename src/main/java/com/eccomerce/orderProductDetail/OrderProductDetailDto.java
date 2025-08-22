@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 public class OrderProductDetailDto {
 
-    private Long idProduct;
+    private String productName;
     private Long quantity;
     private Float discount;
 

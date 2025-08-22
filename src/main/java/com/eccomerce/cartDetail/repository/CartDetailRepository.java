@@ -18,6 +18,10 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     @Query("SELECT c.product.id FROM CartDetail c WHERE c.cart.id = :idCart AND c.product.id = :idProduct")
     Optional<Long> verificarCarritoDetalle(@Param("idCart") Long idCart, @Param("idProduct") Long idProduct);
 
+    @Query("SELECT c.id FROM CartDetail c WHERE c.cart.id = :idCart AND c.product.name = :name")
+    Optional<Long> IdCarritoDetalle(@Param("idCart") Long idCart, @Param("name") String name);
+
+
     @Query("SELECT c.product.id FROM CartDetail c WHERE c.cart.id = :idCart AND c.product.id = :idProduct")
     Optional<Product> verificarCarritoDetalleProducto(@Param("idCart") Long idCart, @Param("idProduct") Long idProduct);
 
