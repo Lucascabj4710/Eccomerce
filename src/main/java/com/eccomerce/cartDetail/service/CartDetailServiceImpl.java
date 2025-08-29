@@ -52,10 +52,9 @@ public class CartDetailServiceImpl implements CartDetailService{
             log.error("No hay suficiente stock para agregar al carrito");
             throw new InvalidStockException("No hay suficiente stock para agregar al carrito");
         }
-        // Obtiene el nombre de usuario del cliente actualmente logueado
-      //  String username = SecurityContextHolder.getContext().getAuthentication().getName();
-       // log.debug(username);
-         String username = "lucas";
+
+         String username = getCurrentUsername();
+         log.info("El usuario logueado es: " + username);
 
         // Busca el cliente asociado al USERNAME del usuario logueado
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
@@ -87,14 +86,6 @@ public class CartDetailServiceImpl implements CartDetailService{
 
 
             cartDetailRepository.save(cartDetail);
-
-//            // Codigo temporal para testear descuento de STOCK
-//            if (product.getStock() == 0 || product.getStock() < cartDetail.getQuantity()) {
-//                log.error("No se puede actualizar el stock");
-//                throw new RuntimeException("ERROR");
-//            } else {
-//                productRepository.discountProductStock(cartDetail.getQuantity(), product.getId());
-//            }
         }
 
 
@@ -104,8 +95,7 @@ public class CartDetailServiceImpl implements CartDetailService{
     @Override
     public List<CartDetailResponseDto> getCartDetail() {
 
-        // String username = getCurrentUsername();
-        String username = "lucas";
+        String username = getCurrentUsername();
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("ERROR el cliente " + username + " no existe" ));
 
@@ -156,31 +146,6 @@ public class CartDetailServiceImpl implements CartDetailService{
         }
         return Map.of("STATUS", "COMPLETED");
     }
-
-
-//    public CartDetailResponseDto convertToCartDetailResponseDto(CartDetail cartDetail){
-//        if(modelMapper.getTypeMap(CartDetail.class, CartDetailResponseDto.class) == null){
-//            TypeMap<CartDetail, CartDetailResponseDto> propertyMapper = modelMapper.createTypeMap(CartDetail.class, CartDetailResponseDto.class);
-//            propertyMapper.addMappings(mapping ->
-//                    mapping.skip(CartDetailResponseDto::setProductResponseDto));
-//            propertyMapper.addMapping(CartDetail::getUnitPrice, CartDetailResponseDto::setUnitPrice);
-//            propertyMapper.addMapping(CartDetail::getQuantity, CartDetailResponseDto::setQuantity);
-//        }
-//        return modelMapper.map(cartDetail, CartDetailResponseDto.class);
-//    }
-//
-//    public CartDetail convertToCartDetail(CartDetailResponseDto cartDetailResponseDto){
-//        if(modelMapper.getTypeMap(CartDetailResponseDto.class, CartDetail.class) == null) {
-//            TypeMap<CartDetailResponseDto, CartDetail> propertyMapper = modelMapper.createTypeMap(CartDetailResponseDto.class, CartDetail.class);
-//            propertyMapper.addMappings(mapping -> mapping.skip(CartDetail::setProduct));
-//            propertyMapper.addMappings(mapping -> mapping.skip(CartDetail::setCart));
-//            propertyMapper.addMapping(CartDetailResponseDto::getQuantity, CartDetail::setQuantity);
-//            propertyMapper.addMapping(CartDetailResponseDto::getUnitPrice, CartDetail::setUnitPrice);
-//        }
-//        return modelMapper.map(cartDetailResponseDto, CartDetail.class);
-//    }
-
-
 
     private String getCurrentUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();

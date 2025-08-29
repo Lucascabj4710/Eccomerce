@@ -42,8 +42,8 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
                 .quantity(orderProductDetailDto.getQuantity())
                 .build();
 
-//        String username = getCurrentUsername();
-        String username = "lucas";
+        String username = getCurrentUsername();
+
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException(""));
 
         Order order = orderRepository.findByClient(client.getId()).orElse(Order.builder()
@@ -61,8 +61,8 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
     @Override
     public List<OrderProductDetailResponse> getAllOrderProductDetail() {
 
-        // String username = getCurrentUsername();
-        String username = "lucas";
+        String username = getCurrentUsername();
+
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("No existe un cliente con ese username"));
 
         return orderProductDetailRepository.findAll().stream()
@@ -88,8 +88,8 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
 
     @Override
     public Map<String, String> deleteOrderProductDetail(Long id) {
-//        String username = getCurrentUsername();
-        String username = "lucas";
+
+        String username = getCurrentUsername();
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("Cliente no encontrado"));
 
@@ -97,10 +97,10 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
             if (orderProductDetailRepository.checkClientOrderProductDetail(client.getId(), id).isPresent()){
                 orderProductDetailRepository.deleteById(id);
             } else {
-                throw new RuntimeException("");
+                throw new RuntimeException("No tiene autorizacion para eliminar esta orden");
             }
         } else {
-            throw new RuntimeException("");
+            throw new RuntimeException("No existe una orden con ese ID");
         }
 
         return Map.of("STATUS", "DELETED");

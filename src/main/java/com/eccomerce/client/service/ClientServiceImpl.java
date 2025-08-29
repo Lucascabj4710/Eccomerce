@@ -5,12 +5,15 @@ import com.eccomerce.client.dto.ClientResponseDto;
 import com.eccomerce.client.entity.Client;
 import com.eccomerce.client.exception.ClientCreationException;
 import com.eccomerce.client.exception.ClientDeleteException;
+import com.eccomerce.client.exception.ClientNotFoundException;
 import com.eccomerce.client.exception.ClientUpdateException;
 import com.eccomerce.client.repository.ClientRepository;
 import com.eccomerce.userEntity.UserEntityServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 
+@Slf4j
 @Service
 public class ClientServiceImpl implements ClientService{
 
@@ -75,10 +79,9 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public Map<String, String> updateClient(ClientDto clientDto) {
+    public Map<String, String> updateClient(ClientDto clientDto, String username) {
 
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String username ="lucas";
+        log.info(username);
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
 
@@ -88,6 +91,7 @@ public class ClientServiceImpl implements ClientService{
             client.setDni(clientDto.getDni());
             client.setEmail(clientDto.getEmail());
             client.setPhoneNumber(clientDto.getPhoneNumber());
+            client.setLastName(clientDto.getLastname());
 
             clientRepository.save(client);
         } catch (RuntimeException e) {
@@ -95,6 +99,12 @@ public class ClientServiceImpl implements ClientService{
         }
 
         return Map.of("STATUS", "COMPLETED");
+    }
+
+    @Override
+    public Client getUserActive(String username) {
+
+        return clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("No existe el cliente con ese username"));
     }
 
 

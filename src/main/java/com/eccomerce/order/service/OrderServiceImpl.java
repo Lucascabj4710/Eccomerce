@@ -50,8 +50,7 @@ public class OrderServiceImpl implements OrderService{
                 .filter(orderStatus1 -> status.toUpperCase().equals(orderStatus1.name()))
                 .findFirst().orElseThrow(()-> new RuntimeException(""));
 
-//        String username = getUsername();
-        String username = "lucas";
+        String username = getUsername();
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
 
@@ -68,7 +67,7 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public Map<String, String> buyCart() {
 
-        String username = "lucas";
+        String username = getUsername();
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
 
         Cart cart = cartRepository.findByClientId(client.getId()).orElseThrow(()-> new CartNotFoundException("Error carrito no existente"));

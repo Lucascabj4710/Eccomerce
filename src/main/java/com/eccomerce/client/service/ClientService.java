@@ -2,6 +2,7 @@ package com.eccomerce.client.service;
 
 import com.eccomerce.client.dto.ClientDto;
 import com.eccomerce.client.dto.ClientResponseDto;
+import com.eccomerce.client.entity.Client;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ public interface ClientService {
     public Map<String, String> deleteClient(Long id);
 
     // Actualizar cliente por ID
-    public Map<String, String> updateClient(ClientDto clientDto);
+    public Map<String, String> updateClient(ClientDto clientDto, String username);
+
+    public Client getUserActive(String username);
 
 }

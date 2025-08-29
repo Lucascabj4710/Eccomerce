@@ -46,10 +46,16 @@ public class ClientController {
         return ResponseEntity.ok(clientServiceImple.deleteClient(id));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateClientID(@PathVariable Long id, @RequestBody @Valid ClientDto clientDto){
+    @PutMapping("/update/{username}")
+    public ResponseEntity<?> updateClient(@RequestBody @Valid ClientDto clientDto, @PathVariable String username){
 
-        return ResponseEntity.ok(clientServiceImple.updateClient(clientDto));
+        return ResponseEntity.ok(clientServiceImple.updateClient(clientDto, username));
+    }
+
+    @GetMapping("/getUserActive/{username}")
+    public ResponseEntity<?> getUserActive(@PathVariable String username){
+
+        return ResponseEntity.ok(clientServiceImple.getUserActive(username));
     }
 
 }

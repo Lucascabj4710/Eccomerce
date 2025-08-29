@@ -20,26 +20,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
-//    private final ModelMapper modelMapper;
     private final ProductMapper productMapper;
     private final ProductDtoMapper productDtoMapper;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
-    // Definilo en tu clase Service (fuera del método)
-    private final String imgFolder = "C:/Users/lucas/Documents/IntelliJ proyectos/eccomerce/imgfolder";
 
+    // Inyectamos la ruta desde application.properties
+    @Value("${img.folder.path}")
+    private String imgFolder;
 
-    public ProductServiceImpl( ProductMapper productMapper, ProductDtoMapper productDtoMapper, ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductMapper productMapper, ProductDtoMapper productDtoMapper,
+                              ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productMapper = productMapper;
         this.productDtoMapper = productDtoMapper;
         this.productRepository = productRepository;
@@ -53,36 +55,24 @@ public class ProductServiceImpl implements ProductService{
         try {
             logger.info("[CREATE_PRODUCT] Inicio del método createProduct");
 
-            logger.debug("[CREATE_PRODUCT] DTO recibido: {}", productDto);
-            logger.debug("[CREATE_PRODUCT] ID de categoría recibido: {}", productDto.getIdCategory());
-
-            // 1. Validar archivo vacío
             if (file.isEmpty()) {
                 logger.warn("[CREATE_PRODUCT] Archivo recibido está vacío");
                 return Map.of("ERROR", "Archivo vacío");
             }
 
-            // 2. Generar nombre único con UUID + extensión original
             String extension = FilenameUtils.getExtension(file.getOriginalFilename());
             String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
 
-            // 3. Crear path completo (puede ser absoluto o relativo)
-            Path rutaArchivo = Paths.get(imgFolder).resolve(nombreArchivo);
+            // Ruta absoluta calculada desde la propiedad
+            Path uploadDir = Paths.get(imgFolder).toAbsolutePath();
+            Path rutaArchivo = uploadDir.resolve(nombreArchivo);
 
-            // 4. Guardar archivo usando transferTo (más simple que Files.copy)
             file.transferTo(rutaArchivo.toFile());
 
-            // 5. Crear URL pública para acceder al archivo (ajustá según tu configuración)
             String imageUrl = "/imgfolder/" + nombreArchivo;
 
-            logger.debug("[CREATE_PRODUCT] URL de imagen asignada: {}", imageUrl);
-
-            // 6. Crear el producto y asignar la URL
             Product product = productMapper.converterToProduct(productDto);
             product.setImageUrl(imageUrl);
-
-
-            logger.debug("[CREATE_PRODUCT] Producto convertido desde DTO: {}", product);
 
             Category category = categoryRepository.findById(productDto.getIdCategory())
                     .orElseThrow(() -> {
@@ -90,12 +80,8 @@ public class ProductServiceImpl implements ProductService{
                         return new NoSuchElementException("La categoría " + productDto.getIdCategory() + " no existe");
                     });
 
-            logger.info("[CREATE_PRODUCT] Categoría encontrada: {}", category.getName());
-
             product.setCategory(category);
             productRepository.save(product);
-
-            logger.info("[CREATE_PRODUCT] Producto guardado exitosamente con ID {}", product.getId());
 
             response.put("Mensaje", "Producto cargado exitosamente");
             return response;
@@ -192,38 +178,5 @@ public class ProductServiceImpl implements ProductService{
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
-
-
-//    public ProductResponseDto converterToProductResponseDto(Product product){
-//
-//        if (modelMapper.getTypeMap(Product.class, ProductResponseDto.class) == null) {
-//            TypeMap<Product, ProductResponseDto> propertyMapper = modelMapper.createTypeMap(Product.class, ProductResponseDto.class);
-//            propertyMapper.addMapping(Product::getName, ProductResponseDto::setName);
-//            propertyMapper.addMapping(Product::getImageUrl, ProductResponseDto::setImageUrl);
-//            propertyMapper.addMapping(Product::getPrice, ProductResponseDto::setPrice);
-//            propertyMapper.addMapping(Product::getColor,ProductResponseDto::setColor);
-//            propertyMapper.addMapping(Product::getMaterial, ProductResponseDto::setMaterial);
-//            propertyMapper.addMapping(Product::getWaist,ProductResponseDto::setWaist);
-//        }
-//
-//        return modelMapper.map(product, ProductResponseDto.class);
-//    }
-//
-//    public Product converterToProduct(ProductDto productDto){
-//
-//        if (modelMapper.getTypeMap(ProductDto.class, Product.class) == null) {
-//            TypeMap<ProductDto, Product> propertyMapper = modelMapper.createTypeMap(ProductDto.class, Product.class);
-//            propertyMapper.addMappings(mapper -> mapper.skip(Product::setId)); // Ignorar id
-//            propertyMapper.addMappings(mapper -> mapper.skip(Product::setImageUrl)); // Ignorar url
-//            propertyMapper.addMapping(ProductDto::getName, Product::setName);
-//            propertyMapper.addMapping(ProductDto::getPrice, Product::setPrice);
-//            propertyMapper.addMapping(ProductDto::getColor, Product::setColor);
-//            propertyMapper.addMapping(ProductDto::getMaterial, Product::setMaterial);
-//            propertyMapper.addMapping(ProductDto::getWaist, Product::setWaist);
-//        }
-//
-//        return modelMapper.map(productDto, Product.class);
-//    }
-
 
 }
