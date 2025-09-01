@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -55,12 +57,24 @@ public class ProductServiceImpl implements ProductService {
         try {
             logger.info("[CREATE_PRODUCT] Inicio del método createProduct");
 
-            if (file.isEmpty()) {
-                logger.warn("[CREATE_PRODUCT] Archivo recibido está vacío");
-                return Map.of("ERROR", "Archivo vacío");
+            String originalFilename = file.getOriginalFilename();
+
+            if (originalFilename == null || originalFilename.trim().isEmpty()) {
+                logger.warn("[CREATE_PRODUCT] Nombre de archivo no válido");
+                return Map.of("ERROR", "Nombre de archivo inválido");
             }
 
-            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+            // Obtenemos la extensión (ya limpia)
+            String extension = FilenameUtils.getExtension(originalFilename.trim()).toLowerCase();
+
+            // Validar extensiones permitidas
+            List<String> extensionesPermitidas = List.of("jpg", "jpeg", "png", "gif", "webp");
+            if (!extensionesPermitidas.contains(extension)) {
+                logger.warn("[CREATE_PRODUCT] Extensión no permitida: {}", extension);
+                return Map.of("ERROR", "Tipo de archivo no permitido. Solo se aceptan: " + extensionesPermitidas);
+            }
+
+            // Nombre único
             String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
 
             // Ruta absoluta calculada desde la propiedad
@@ -102,17 +116,45 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Product> getProducts(Pageable pageable) {
-        try {
-            logger.info("Inicio del metodo getProducts");
-            return productRepository.findAll(pageable);
-        } catch (DataAccessException e) {
-            throw new DataAccessResourceFailureException("Error al intentar recuperar la lista de productos");
-        }
 
+    @Override
+    public Page<Product> getProductsByMaterial(String material, Pageable pageable) {
+        return null;
     }
+
+    @Override
+    public Page<ProductResponseDto> getProducts(String name, String material, int page, int size, String sortBy, String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        boolean hasName = name != null && !name.isBlank();
+        boolean hasMaterial = material != null && !material.isBlank();
+
+        if (hasName && !hasMaterial) {
+             Page<Product> products = productRepository.findByNameContainingIgnoreCase(name, pageable);
+
+            return products.map(productDtoMapper::converterToProductResponseDto);
+
+        } else if (!hasName && hasMaterial) {
+            Page<Product> products= productRepository.findByMaterialContainingIgnoreCase(material, pageable);
+
+            return products.map(productDtoMapper::converterToProductResponseDto);
+
+        } else if (hasName && hasMaterial) {
+            // Opcional: si luego querés combinar ambos filtros, necesitás un método nuevo en el repo
+            Page<Product> products = productRepository.findByNameContainingIgnoreCaseAndMaterialContainingIgnoreCase(name, material, pageable);
+
+           return products.map(productDtoMapper::converterToProductResponseDto);
+
+        } else {
+            Page<Product> products = productRepository.findAll(pageable);
+            return products.map(productDtoMapper::converterToProductResponseDto);
+        }
+    }
+
 
     @Override
     @Transactional(readOnly = true) // Implementa que esta funcion sea solo de lectura
@@ -123,6 +165,11 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setCategoryDesc(product.getCategory().getName());
 
         return productResponseDto;
+    }
+
+    @Override
+    public List<String> getMaterial() {
+        return productRepository.findDistinctMaterials();
     }
 
     @Override

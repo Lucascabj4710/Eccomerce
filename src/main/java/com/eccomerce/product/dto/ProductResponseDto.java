@@ -7,6 +7,7 @@ import lombok.*;
 @Builder
 public class ProductResponseDto {
 
+    private Long id;
     private String name;
     private String imageUrl;
     private String categoryDesc;

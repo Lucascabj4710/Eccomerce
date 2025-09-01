@@ -16,14 +16,20 @@ public interface ProductService {
     public Map<String, String> createProduct(ProductDto productDto, MultipartFile archivo);
 
     // Obtener productos
-    public Page<Product> getProducts(Pageable pageable);
+    public Page<ProductResponseDto> getProducts(String name, String material, int page, int size, String sortBy, String direction);
+
+    public Page<Product> getProductsByMaterial(String material, Pageable pageable);
 
     // Obtener producto por ID
     public ProductResponseDto getProductId(Long id);
+
+    // Obtener todos los materiales de todos los productos
+    public List<String> getMaterial();
 
     // Eliminar producto por ID
     public Map<String, String> deleteProduct(Long id);
 
     // Actualizar producto por ID
     public Map<String, String> updateProduct(Long id, ProductDto product, MultipartFile archivo);
+
 }

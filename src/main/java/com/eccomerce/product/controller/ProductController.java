@@ -43,11 +43,23 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductId(id), HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<?> getProduct(@PageableDefault(page = 0,size = 10, sort = "price", direction = Sort.Direction.DESC) Pageable pageable){
 
-        return new ResponseEntity<>(productService.getProducts(pageable), HttpStatus.ACCEPTED);
+    @GetMapping("/getMaterial")
+    public ResponseEntity<?> getMaterial(){
+
+        return new ResponseEntity<>(productService.getMaterial(), HttpStatus.OK);
     }
+
+    @GetMapping("/getProducts")
+    public ResponseEntity<?> getProducts(@RequestParam(required = false) String material, @RequestParam(required = false) String name,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size,
+                                              @RequestParam(defaultValue = "id") String sortBy,
+                                              @RequestParam(defaultValue = "asc") String direction){
+
+        return new ResponseEntity<>(productService.getProducts(name,material, page,size,sortBy,direction), HttpStatus.OK);
+    }
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id,
