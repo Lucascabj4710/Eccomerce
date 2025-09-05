@@ -20,7 +20,9 @@ public class CartDetailController {
     @PostMapping("create")
     public ResponseEntity<?> createCartDetail(@RequestBody @Valid CartDetailRequestDto cartDetailRequestDto){
 
-         return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.createCartDetail(cartDetailRequestDto));
+        cartDetailService.createCartDetail(cartDetailRequestDto);
+
+         return ResponseEntity.status(HttpStatus.CREATED).body("Operación realizada con éxito");
     }
 
     @GetMapping("get")
@@ -38,13 +40,15 @@ public class CartDetailController {
     @DeleteMapping("delete/{id}/{productName}")
     public ResponseEntity<?> deleteCartDetail(@PathVariable Long id, @PathVariable String productName){
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.deleteCartDetail(id, productName));
+        cartDetailService.deleteCartDetail(id, productName);
+        return ResponseEntity.status(HttpStatus.OK).body("Operación realizada con éxito");
     }
 
     @PutMapping("update/{id}")
     public ResponseEntity<?> updateCartDetail(@PathVariable Long id, @RequestBody Long quantity){
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartDetailService.updateCartDetail(id, quantity));
+        cartDetailService.updateCartDetail(id, quantity);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Operación realizada con éxito");
     }
 
 }

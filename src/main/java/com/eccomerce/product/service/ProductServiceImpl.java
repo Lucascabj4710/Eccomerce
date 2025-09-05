@@ -1,5 +1,6 @@
 package com.eccomerce.product.service;
 
+import com.eccomerce.category.exception.CategoryNotFoundException;
 import com.eccomerce.product.dto.ProductDto;
 import com.eccomerce.product.dto.ProductResponseDto;
 import com.eccomerce.product.entity.Product;
@@ -91,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
             Category category = categoryRepository.findById(productDto.getIdCategory())
                     .orElseThrow(() -> {
                         logger.error("[CREATE_PRODUCT] No se encontró categoría con ID {}", productDto.getIdCategory());
-                        return new NoSuchElementException("La categoría " + productDto.getIdCategory() + " no existe");
+                        return new CategoryNotFoundException("La categoría " + productDto.getIdCategory() + " no existe");
                     });
 
             product.setCategory(category);
@@ -116,12 +117,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
-    @Override
-    public Page<Product> getProductsByMaterial(String material, Pageable pageable) {
-        return null;
-    }
-
     @Override
     public Page<ProductResponseDto> getProducts(String name, String material, int page, int size, String sortBy, String direction) {
 
@@ -144,7 +139,6 @@ public class ProductServiceImpl implements ProductService {
             return products.map(productDtoMapper::converterToProductResponseDto);
 
         } else if (hasName && hasMaterial) {
-            // Opcional: si luego querés combinar ambos filtros, necesitás un método nuevo en el repo
             Page<Product> products = productRepository.findByNameContainingIgnoreCaseAndMaterialContainingIgnoreCase(name, material, pageable);
 
            return products.map(productDtoMapper::converterToProductResponseDto);
@@ -153,6 +147,11 @@ public class ProductServiceImpl implements ProductService {
             Page<Product> products = productRepository.findAll(pageable);
             return products.map(productDtoMapper::converterToProductResponseDto);
         }
+    }
+
+    @Override
+    public Page<Product> getProductsByMaterial(String material, Pageable pageable) {
+        return null;
     }
 
 
@@ -175,25 +174,26 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String, String> deleteProduct(Long id) {
         Map<String, String> response = new HashMap<>();
-        try {
-            productRepository.deleteById(id);
-            response.put("status","Producto eliminado con exito");
 
-            return response;
-        } catch (DataAccessException e) {
-            throw new DataAccessResourceFailureException("Error al intentar eliminar el producto");
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("El producto con ID " + id + " no existe"));
+        productRepository.delete(product);
+
+        response.put("status","Producto eliminado con exito");
+
+        return response;
     }
 
     @Override
-    public Map<String, String> updateProduct(Long id, ProductDto productDto, MultipartFile file) {
+    public Map<String, String> updateProduct(String name, ProductDto productDto, MultipartFile file) {
         Map<String, String> response = new HashMap<>();
 
         try {
-            Product product = productRepository.findById(id)
-                    .orElseThrow(() -> new NoSuchElementException("El producto con ID " + id + " no existe"));
+            Product product = productRepository.findByName(name)
+                    .orElseThrow(() -> new ProductNotFoundException("El producto con nombre " + name + " no existe"));
+
             Category category = categoryRepository.findById(productDto.getIdCategory())
-                    .orElseThrow(() -> new NoSuchElementException("La categoría con ID " + productDto.getIdCategory() + " no existe"));
+                    .orElseThrow(() -> new CategoryNotFoundException("La categoría con ID " + productDto.getIdCategory() + " no existe"));
 
             // Actualizar campos básicos
             product.setName(productDto.getName());
@@ -203,27 +203,44 @@ public class ProductServiceImpl implements ProductService {
             product.setWaist(productDto.getWaist());
             product.setCategory(category);
 
-            // Si viene un archivo, lo guardamos y actualizamos la URL
+            // Si viene un archivo, validamos igual que en createProduct
             if (file != null && !file.isEmpty()) {
-                String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+                String originalFilename = file.getOriginalFilename();
+
+                if (originalFilename == null || originalFilename.trim().isEmpty()) {
+                    logger.warn("[UPDATE_PRODUCT] Nombre de archivo no válido");
+                    return Map.of("ERROR", "Nombre de archivo inválido");
+                }
+
+                String extension = FilenameUtils.getExtension(originalFilename.trim()).toLowerCase();
+                List<String> extensionesPermitidas = List.of("jpg", "jpeg", "png", "gif", "webp");
+
+                if (!extensionesPermitidas.contains(extension)) {
+                    logger.warn("[UPDATE_PRODUCT] Extensión no permitida: {}", extension);
+                    return Map.of("ERROR", "Tipo de archivo no permitido. Solo se aceptan: " + extensionesPermitidas);
+                }
+
                 String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
-                Path rutaArchivo = Paths.get(imgFolder).resolve(nombreArchivo);
+                Path uploadDir = Paths.get(imgFolder).toAbsolutePath();
+                Path rutaArchivo = uploadDir.resolve(nombreArchivo);
+
                 file.transferTo(rutaArchivo.toFile());
-                String imageUrl = "/imgfolder/" + nombreArchivo; // Ajusta según tu endpoint público
+
+                String imageUrl = "/imgfolder/" + nombreArchivo;
                 product.setImageUrl(imageUrl);
                 logger.debug("[UPDATE_PRODUCT] URL de imagen asignada: {}", imageUrl);
             }
 
             productRepository.save(product);
             response.put("Status", "Producto actualizado exitosamente");
-
             return response;
 
-        } catch (RuntimeException e) {
+        } catch (DataAccessResourceFailureException e) {
             throw new DataAccessResourceFailureException("Error al intentar actualizar el producto", e);
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
 
 }

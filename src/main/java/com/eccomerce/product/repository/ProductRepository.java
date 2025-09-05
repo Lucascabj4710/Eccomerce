@@ -19,8 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("UPDATE Product as p SET p.stock = p.stock - :stock WHERE id = :id")
     void discountProductStock( @Param("stock") Long stock, @Param("id") Long id);
 
-    @Query("SELECT p FROM Product as p WHERE p.name = :name")
-    Optional<Product> findByName(@Param("name") String productName);
+    @Query("SELECT p FROM Product p WHERE p.name = :productName")
+    Optional<Product> findByName(@Param("productName") String productName);
 
     @Query("SELECT DISTINCT p.material FROM Product p")
     List<String> findDistinctMaterials();

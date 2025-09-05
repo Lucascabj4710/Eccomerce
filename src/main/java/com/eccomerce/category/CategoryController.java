@@ -29,19 +29,19 @@ public class CategoryController {
     @PostMapping("create")
     public ResponseEntity<?> createCategory(@RequestBody CategoryDto categoryDto){
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.createCategory(categoryDto));
+        return ResponseEntity.status(HttpStatus.OK).body("La operacion se realizo con exito");
     }
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable Long id){
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.deleteCategory(id));
+        return ResponseEntity.status(HttpStatus.OK).body("La operacion se realizo con exito");
     }
 
     @PutMapping("update/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto){
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategory(id, categoryDto));
+        return ResponseEntity.status(HttpStatus.OK).body("La operacion se realizo con exito");
     }
 
 }

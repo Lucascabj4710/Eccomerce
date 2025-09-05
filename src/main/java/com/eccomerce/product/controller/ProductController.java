@@ -61,11 +61,13 @@ public class ProductController {
     }
 
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id,
-                                           @RequestParam(value = "file", required = false)MultipartFile archivo) {
+    @PutMapping("/update/{name}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable String name,
+            @ModelAttribute ProductDto productDto,
+            @RequestParam(value = "file", required = false) MultipartFile archivo) {
 
-        productService.updateProduct(id,productDto, archivo);
+        productService.updateProduct(name, productDto, archivo);
         return new ResponseEntity<>("COMPLETED UPDATE", HttpStatus.ACCEPTED);
     }
 

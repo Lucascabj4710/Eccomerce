@@ -12,6 +12,7 @@ import com.eccomerce.order.Order;
 import com.eccomerce.order.OrderStatus;
 import com.eccomerce.client.repository.ClientRepository;
 import com.eccomerce.order.OrderRepository;
+import com.eccomerce.order.OrderStatusNotFound;
 import com.eccomerce.orderProductDetail.OrderProductDetail;
 import com.eccomerce.orderProductDetail.OrderProductDetailRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -48,19 +49,19 @@ public class OrderServiceImpl implements OrderService{
 
         OrderStatus orderStatus = statusList.stream()
                 .filter(orderStatus1 -> status.toUpperCase().equals(orderStatus1.name()))
-                .findFirst().orElseThrow(()-> new RuntimeException(""));
+                .findFirst().orElseThrow(()-> new OrderStatusNotFound("El estado de la orden '" + status + "' no es válido"));
 
         String username = getUsername();
 
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
 
-        Order order = orderRepository.findByClientAndOrderID(client.getId(), idOrder).orElseThrow();
+        Order order = orderRepository.findByClientAndOrderID(client.getId(), idOrder).orElseThrow(()-> new OrderStatusNotFound( "La orden con ID " + idOrder + " no existe o no pertenece al cliente actual"));
 
         order.setOrderStatus(orderStatus);
 
         orderRepository.save(order);
 
-        return Map.of();
+        return Map.of("Status", "Operacion realizado con exito");
     }
 
     @Override
@@ -74,14 +75,12 @@ public class OrderServiceImpl implements OrderService{
 
         List<CartDetail> cartDetails = cartDetailRepository.findByCartDetailID(cart.getId()).orElseThrow(()-> new CartDetailNotFoundException("CartDetail no existe"));
 
-        log.info("Error aca antes del order builder");
 
         Order order = Order.builder()
                 .orderDate(LocalDate.now())
                 .client(client)
                 .orderStatus(OrderStatus.PENDING)
                 .build();
-        log.info("Error aca antes de guardar el order");
 
         float priceFinalOrder = (float) cartDetails.stream()
                 .mapToDouble(cd -> cd.getUnitPrice() * cd.getQuantity())
@@ -91,7 +90,6 @@ public class OrderServiceImpl implements OrderService{
 
         orderRepository.save(order);
 
-        log.info("Error aca antes de obterner el id de order");
 
         List<OrderProductDetail> orderProductDetails = cartDetails.stream()
                 .map(cartDetail -> {
@@ -104,13 +102,12 @@ public class OrderServiceImpl implements OrderService{
                             .build();
                 }).toList();
 
-        log.info("Error aca dsp de obtener la lista de orderProductDetail");
 
         orderProductDetailRepository.saveAll(orderProductDetails);
 
         cartDetailRepository.deleteAll(cartDetails);
 
-        return Map.of("COMPLETED", "OPA");
+        return Map.of("STATUS", "Operacion realizada con exito");
     }
 
 

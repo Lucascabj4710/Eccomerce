@@ -20,6 +20,7 @@ public class ClientDto {
     @NotBlank(message = "El nombre no puede estar vacio o null")
     @Pattern(regexp = "\\d+", message = "El DNI debe contener solo números")
     private String dni;
+    @NotBlank(message = "El email no puede estar vacío")
     @Email(message = "El campo debe tener el formato email")
     private String email;
     @Valid

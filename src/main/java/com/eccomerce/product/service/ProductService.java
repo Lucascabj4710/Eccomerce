@@ -29,7 +29,7 @@ public interface ProductService {
     // Eliminar producto por ID
     public Map<String, String> deleteProduct(Long id);
 
-    // Actualizar producto por ID
-    public Map<String, String> updateProduct(Long id, ProductDto product, MultipartFile archivo);
+    // Actualizar producto por el nombre
+    public Map<String, String> updateProduct(String name, ProductDto product, MultipartFile archivo);
 
 }

@@ -4,7 +4,6 @@ import com.eccomerce.category.exception.CategoryNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -31,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Map<String, String> createCategory(CategoryDto categoryDto) {
+    public void createCategory(CategoryDto categoryDto) {
 
         Category category = Category.builder()
                 .name(categoryDto.getName())
@@ -39,27 +38,22 @@ public class CategoryServiceImpl implements CategoryService{
 
         categoryRepository.save(category);
 
-        return Map.of("STATUS", "COMPLETED");
     }
 
     @Override
-    public Map<String, String> deleteCategory(Long id) {
+    public void deleteCategory(Long id) {
 
         categoryRepository.findById(id).orElseThrow(()-> new CategoryNotFoundException("La categoria ingresada no existe"));
         categoryRepository.deleteById(id);
-
-        return Map.of("STATUS", "COMPLETED");
     }
 
     @Override
-    public Map<String, String> updateCategory(Long id, CategoryDto categoryDto) {
+    public void updateCategory(Long id, CategoryDto categoryDto) {
 
         Category category = categoryRepository.findById(id).orElseThrow(()-> new CategoryNotFoundException("La categoria ingresada no existe"));
 
         category.setName(categoryDto.getName());
 
         categoryRepository.save(category);
-
-        return Map.of("STATUS", "COMPLETED");
     }
 }

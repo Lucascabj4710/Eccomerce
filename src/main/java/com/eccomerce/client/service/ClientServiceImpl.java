@@ -38,16 +38,13 @@ public class ClientServiceImpl implements ClientService{
     @Override
     @Transactional
     public Map<String, String> createClient(ClientDto clientDto) {
-        try {
+
             Client client = convertToClient(clientDto);
             client.setUserEntity(userEntityService.createUserEntity(clientDto.getUserEntityDto().getUsername(), clientDto.getUserEntityDto().getPassword()));
 
             clientRepository.save(client);
 
             return Map.of("COMPLETED", "CLIENT CREATED");
-        } catch (RuntimeException e) {
-            throw new ClientCreationException("Error al crear el cliente");
-        }
 
     }
 
@@ -68,13 +65,8 @@ public class ClientServiceImpl implements ClientService{
     @Override
     public Map<String, String> deleteClient(Long id) {
 
-        clientRepository.findById(id).orElseThrow(NoSuchElementException::new);
-
-        try {
+        clientRepository.findById(id).orElseThrow(()-> new ClientNotFoundException("El cliente solicitado no existe"));
             clientRepository.deleteById(id);
-        } catch (RuntimeException e) {
-            throw new ClientDeleteException("Error al eliminar el cliente");
-        }
         return Map.of("STATUS", "COMPLETED");
     }
 
@@ -83,20 +75,14 @@ public class ClientServiceImpl implements ClientService{
 
         log.info(username);
 
-        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Error no existe un cliente con ese ID"));
+        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("Error no existe un cliente con ese ID"));
+        client.setName(clientDto.getName());
+        client.setDni(clientDto.getDni());
+        client.setEmail(clientDto.getEmail());
+        client.setPhoneNumber(clientDto.getPhoneNumber());
+        client.setLastName(clientDto.getLastname());
 
-
-        try {
-            client.setName(clientDto.getName());
-            client.setDni(clientDto.getDni());
-            client.setEmail(clientDto.getEmail());
-            client.setPhoneNumber(clientDto.getPhoneNumber());
-            client.setLastName(clientDto.getLastname());
-
-            clientRepository.save(client);
-        } catch (RuntimeException e) {
-            throw new ClientUpdateException("Error al actualizar cliente");
-        }
+        clientRepository.save(client);
 
         return Map.of("STATUS", "COMPLETED");
     }
