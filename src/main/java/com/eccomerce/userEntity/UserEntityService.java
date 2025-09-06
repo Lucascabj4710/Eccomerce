@@ -6,7 +6,7 @@ public interface UserEntityService {
 
     ResponseEntity<?> createUserEntity(UserEntityDto userEntityDto);
     UserEntity createUserEntity(String username, String password);
-    ResponseEntity<?> updateUserEntity(Long id,UserEntityDto userEntityDto);
+    ResponseEntity<?> updateUserEntity(UserEntityDto userEntityDto);
     ResponseEntity<?> deleteUserEntity(Long id);
 
 }

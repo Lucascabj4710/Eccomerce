@@ -1,5 +1,6 @@
 package com.eccomerce.userEntity;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,10 @@ public class UserEntityController {
         return new ResponseEntity<>(userDetailService.login(userEntityDto), HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUserPass(@RequestBody UserEntityDto userEntityDto, @PathVariable Long id){
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUserPass(@RequestBody @Valid UserEntityDto userEntityDto){
 
-        return userEntityService.updateUserEntity(id, userEntityDto);
+        return userEntityService.updateUserEntity( userEntityDto);
     }
 
 }

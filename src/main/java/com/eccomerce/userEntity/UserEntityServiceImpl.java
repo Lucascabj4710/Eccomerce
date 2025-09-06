@@ -72,20 +72,15 @@ public class UserEntityServiceImpl implements UserEntityService{
     }
 
     @Override
-    public ResponseEntity<?> updateUserEntity(Long id, UserEntityDto userEntityDto) {
+    public ResponseEntity<?> updateUserEntity(UserEntityDto userEntityDto) {
 
-        String username = "lucas";
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        UserEntity user = userEntityRepository.findUserEntityByUsername(username).orElseThrow(()-> new NoSuchElementException("El usuario ingresado no existe"));
-
-        if (user.getId() != id){
-            throw new AccessDeniedException("No esta autorizado para modificar este usuario");
-        }
+        UserEntity user = userEntityRepository.findUserEntityByUsername(username).orElseThrow(()-> new UserEntityNotFoundException("El usuario ingresado no existe"));
 
         String passwordEncoded = passwordEncoder.encode(userEntityDto.getPassword());
 
         user.setPassword(passwordEncoded);
-        user.setUsername(userEntityDto.getUsername());
 
         userEntityRepository.save(user);
 

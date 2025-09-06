@@ -46,9 +46,34 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/login").permitAll();
+                    auth.requestMatchers(HttpMethod.POST, "user/login").permitAll();
+                    // Categorias
+                    auth.requestMatchers(HttpMethod.POST, "/category/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.PUT, "/category/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.DELETE, "/category/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.PATCH, "/category/**").hasRole("ADMIN");
+                    // Clientes
+                    auth.requestMatchers(HttpMethod.POST, "/client/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.DELETE, "/client/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.PATCH, "/client/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET, "/client/get/**").hasRole("ADMIN");
+                    // Producto detalle de ordenes
+                    auth.requestMatchers(HttpMethod.GET, "/orderDetail/get/*").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.DELETE, "/orderDetail/delete/**").hasRole("ADMIN");
+                    // Productos
                     auth.requestMatchers(HttpMethod.POST,"/products/create").hasRole("ADMIN");
-                    auth.anyRequest().permitAll();
+                    auth.requestMatchers(HttpMethod.PUT,"/products/update/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.DELETE,"/products/delete/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET, "/products/getProducts/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/products/getMaterial").permitAll();
+                    auth.requestMatchers("/imgfolder/**").permitAll();
+
+                    // UserEntity
+                    auth.requestMatchers(HttpMethod.PUT, "/user/update").hasAnyRole("ADMIN", "USER");
+
+
+
+                    auth.anyRequest().authenticated();
                 })
 
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
