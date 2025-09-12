@@ -27,6 +27,9 @@ public class Product {
     private String waist;
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private IsEnabledEnum isEnabled;
+
     @ManyToOne
     @JoinColumn(name = "id_category")
     private Category category;

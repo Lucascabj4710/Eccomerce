@@ -15,14 +15,15 @@ public class ProductDtoMapper {
         this.modelMapper = modelMapper;
     }
 
-    public ProductResponseDto converterToProductResponseDto(Product product){
+    public ProductResponseDto converterToProductResponseDto(Product product) {
 
         TypeMap<Product, ProductResponseDto> propertyMapper;
         if (modelMapper.getTypeMap(Product.class, ProductResponseDto.class) == null) {
             propertyMapper = modelMapper.createTypeMap(Product.class, ProductResponseDto.class);
-            propertyMapper.addMappings(mapper ->
-                    mapper.map(src -> src.getCategory().getName(),  ProductResponseDto::setCategoryDesc)
-            );
+            propertyMapper.addMappings(mapper -> {
+                mapper.map(src -> src.getCategory().getName(), ProductResponseDto::setCategoryDesc);
+                mapper.map(src -> src.getIsEnabled().name(), ProductResponseDto::setIsEnabledEnum);
+            });
         } else {
             propertyMapper = modelMapper.getTypeMap(Product.class, ProductResponseDto.class);
         }

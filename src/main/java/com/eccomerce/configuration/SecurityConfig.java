@@ -65,6 +65,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PUT,"/products/update/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE,"/products/delete/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.GET, "/products/getProducts/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/products/get/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/products/getMaterial").permitAll();
                     auth.requestMatchers("/imgfolder/**").permitAll();
 

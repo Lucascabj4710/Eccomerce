@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
-
+import com.eccomerce.product.entity.IsEnabledEnum;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,6 +88,10 @@ public class ProductServiceImpl implements ProductService {
 
             Product product = productMapper.converterToProduct(productDto);
             product.setImageUrl(imageUrl);
+
+            IsEnabledEnum isEnabledEnum = IsEnabledEnum.ENABLED;
+            product.setIsEnabled(isEnabledEnum);
+
 
             Category category = categoryRepository.findById(productDto.getIdCategory())
                     .orElseThrow(() -> {

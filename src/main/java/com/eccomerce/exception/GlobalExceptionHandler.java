@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,6 +76,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleProductNotFoundException(ProductNotFoundException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
+        ex.printStackTrace(); // para debugging
+
+        Map<String, String> errores = Collections.singletonMap("exception", ex.getMessage());
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Ha ocurrido un error inesperado. Contacta al soporte.")
+                .errors(errores) // Map<String,String> correcto
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+
+
 
 
 
