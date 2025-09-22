@@ -72,6 +72,15 @@ public class SecurityConfig {
                     // UserEntity
                     auth.requestMatchers(HttpMethod.PUT, "/user/update").hasAnyRole("ADMIN", "USER");
 
+                    // Swagger
+                    auth.requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll();
+                    auth.requestMatchers("/swagger-ui/**").permitAll();
+                    auth.requestMatchers("/v3/api-docs/**").permitAll();
+
+                    // Mail
+                    auth.requestMatchers(HttpMethod.GET, "Mail/**").permitAll();
+
+
 
 
                     auth.anyRequest().authenticated();

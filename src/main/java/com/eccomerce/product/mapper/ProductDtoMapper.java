@@ -16,18 +16,20 @@ public class ProductDtoMapper {
     }
 
     public ProductResponseDto converterToProductResponseDto(Product product) {
+        // Mapeo básico
+        ProductResponseDto dto = modelMapper.map(product, ProductResponseDto.class);
 
-        TypeMap<Product, ProductResponseDto> propertyMapper;
-        if (modelMapper.getTypeMap(Product.class, ProductResponseDto.class) == null) {
-            propertyMapper = modelMapper.createTypeMap(Product.class, ProductResponseDto.class);
-            propertyMapper.addMappings(mapper -> {
-                mapper.map(src -> src.getCategory().getName(), ProductResponseDto::setCategoryDesc);
-                mapper.map(src -> src.getIsEnabled().name(), ProductResponseDto::setIsEnabledEnum);
-            });
-        } else {
-            propertyMapper = modelMapper.getTypeMap(Product.class, ProductResponseDto.class);
+        // Null-safe para category
+        if (product.getCategory() != null) {
+            dto.setCategoryDesc(product.getCategory().getName());
         }
 
-        return propertyMapper.map(product);
+        // Null-safe para enum
+        if (product.getIsEnabled() != null) {
+            dto.setIsEnabledEnum(product.getIsEnabled().name());
+        }
+
+        return dto;
     }
 }
+

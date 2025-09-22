@@ -85,7 +85,7 @@ public class CartDetailServiceImpl implements CartDetailService{
                     .product(product)
                     .build();
 
-
+            log.info("OPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             cartDetailRepository.save(cartDetail);
         }
     }

@@ -2,6 +2,7 @@ package com.eccomerce.orderProductDetail;
 
 import com.eccomerce.client.entity.Client;
 import com.eccomerce.client.exception.ClientNotFoundException;
+import com.eccomerce.mail.EmailService;
 import com.eccomerce.order.Order;
 import com.eccomerce.order.OrderStatus;
 import com.eccomerce.product.exception.ProductNotFoundException;
@@ -9,12 +10,14 @@ import com.eccomerce.client.repository.ClientRepository;
 import com.eccomerce.product.entity.Product;
 import com.eccomerce.order.OrderRepository;
 import com.eccomerce.product.repository.ProductRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class OrderDetailServiceImpl implements OrderProductDetailService{
 
@@ -22,12 +25,14 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
     private final ClientRepository clientRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final EmailService emailService;
 
-    public OrderDetailServiceImpl(OrderProductDetailRepository orderProductDetailRepository, ClientRepository clientRepository, OrderRepository orderRepository, ProductRepository productRepository) {
+    public OrderDetailServiceImpl(OrderProductDetailRepository orderProductDetailRepository, ClientRepository clientRepository, OrderRepository orderRepository, ProductRepository productRepository, EmailService emailService) {
         this.orderProductDetailRepository = orderProductDetailRepository;
         this.clientRepository = clientRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -54,6 +59,20 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
 
         orderProductDetail.setOrder(order);
         orderProductDetailRepository.save(orderProductDetail);
+
+        emailService.sendEmail(
+                client.getEmail(),
+                "¡Gracias por tu compra!",
+                "Hola " + client.getName() + ",\n\n" +
+                        "Hemos recibido tu pedido y se está procesando correctamente.\n\n" +
+                        "Producto: " + product.getName() + "\n" +
+                        "Cantidad: " + orderProductDetailDto.getQuantity() + "\n" +
+                        "Precio unitario: $" + product.getPrice() + "\n" +
+                        "Descuento aplicado: $" + orderProductDetailDto.getDiscount() + "\n\n" +
+                        "Total: $" + ((product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity()) + "\n\n" +
+                        "¡Gracias por confiar en nosotros!\n" +
+                        "El equipo de Paradiise"
+        );
 
         return Map.of("STATUS", "CREATED COMPLETED");
     }
