@@ -73,9 +73,18 @@ public class CartDetailServiceImpl implements CartDetailService{
             cartRepository.save(cart);
         }
 
+        Optional<CartDetail> CartDetailExists = cartDetailRepository.verificarCarritoDetalle(cart.getId(), product.getId());
+
         if(cartDetailRepository.verificarCarritoDetalle(cart.getId(), product.getId()).isPresent()){
 
-            cartDetailRepository.subirCantidad(cartDetailRequestDto.getQuantity(), cart.getId(), product.getId());
+            CartDetail cartDetail1 = CartDetailExists.get();
+
+            if (cartDetailRequestDto.getQuantity() + cartDetail1.getQuantity()  <= product.getStock()) {
+                cartDetailRepository.subirCantidad(cartDetailRequestDto.getQuantity(), cart.getId(), product.getId());
+            } else {
+                throw new InvalidStockException("Stock insuficiente para agregar al carrito");
+            }
+
         } else {
 
             CartDetail cartDetail = CartDetail.builder()

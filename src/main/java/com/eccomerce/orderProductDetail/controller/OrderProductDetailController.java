@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("orderDetail")
 public class OrderProductDetailController {
@@ -17,7 +19,7 @@ public class OrderProductDetailController {
     }
 
     @PostMapping("create")
-    public ResponseEntity<?> createOrderDetail(@RequestBody OrderProductDetailDto orderProductDetail){
+    public ResponseEntity<?> createOrderDetail(@RequestBody List<OrderProductDetailDto> orderProductDetail){
 
         return new ResponseEntity<>(orderDetailService.createOrderProductDetail(orderProductDetail), HttpStatus.CREATED);
     }

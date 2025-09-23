@@ -36,46 +36,67 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
     }
 
     @Override
-    public Map<String, String> createOrderProductDetail(OrderProductDetailDto orderProductDetailDto) {
-
-        Product product = productRepository.findByName(orderProductDetailDto.getProductName()).orElseThrow(()-> new ClientNotFoundException("El cliente no existe"));
-
-        OrderProductDetail orderProductDetail = OrderProductDetail.builder()
-                .product(product)
-                .discount(orderProductDetailDto.getDiscount())
-                .unitPrice(product.getPrice())
-                .quantity(orderProductDetailDto.getQuantity())
-                .build();
+    public Map<String, String> createOrderProductDetail(List<OrderProductDetailDto> detailDtoList) {
 
         String username = getCurrentUsername();
-
-        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException(""));
+        Client client = clientRepository.findByUsername(username)
+                .orElseThrow(() -> new ClientNotFoundException(""));
 
         Order order = orderRepository.findByClient(client.getId()).orElse(Order.builder()
-                        .client(client)
-                        .orderStatus(OrderStatus.PENDING)
-                        .build());
+                .client(client)
+                .orderStatus(OrderStatus.PENDING)
+                .build());
         orderRepository.save(order);
 
-        orderProductDetail.setOrder(order);
-        orderProductDetailRepository.save(orderProductDetail);
+        // --- Para armar el mail ---
+        StringBuilder emailBody = new StringBuilder();
+        double totalCompra = 0.0;
 
+        emailBody.append("Hola ").append(client.getName()).append(",\n\n")
+                .append("Hemos recibido tu pedido y se está procesando correctamente.\n\n")
+                .append("Detalles de tu compra:\n");
+
+        for (OrderProductDetailDto orderProductDetailDto : detailDtoList) {
+            Product product = productRepository.findByName(orderProductDetailDto.getProductName())
+                    .orElseThrow(() -> new ClientNotFoundException("El producto no existe"));
+
+            OrderProductDetail orderProductDetail = OrderProductDetail.builder()
+                    .product(product)
+                    .discount(orderProductDetailDto.getDiscount())
+                    .unitPrice(product.getPrice())
+                    .quantity(orderProductDetailDto.getQuantity())
+                    .build();
+
+            orderProductDetail.setOrder(order);
+            orderProductDetailRepository.save(orderProductDetail);
+
+            // Calculo subtotal
+            double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();
+            totalCompra += subtotal;
+
+            // Agrego info del producto al mail
+            emailBody.append("- ").append(product.getName())
+                    .append(" | Cantidad: ").append(orderProductDetailDto.getQuantity())
+                    .append(" | Precio unitario: $").append(product.getPrice())
+                    .append(" | Descuento: $").append(orderProductDetailDto.getDiscount())
+                    .append(" | Subtotal: $").append(subtotal)
+                    .append("\n");
+        }
+
+        emailBody.append("\nTotal de la compra: $").append(totalCompra).append("\n\n")
+                .append("¡Gracias por confiar en nosotros!\n")
+                .append("El equipo de Paradiise");
+
+        // Envio un solo mail al final
         emailService.sendEmail(
                 client.getEmail(),
                 "¡Gracias por tu compra!",
-                "Hola " + client.getName() + ",\n\n" +
-                        "Hemos recibido tu pedido y se está procesando correctamente.\n\n" +
-                        "Producto: " + product.getName() + "\n" +
-                        "Cantidad: " + orderProductDetailDto.getQuantity() + "\n" +
-                        "Precio unitario: $" + product.getPrice() + "\n" +
-                        "Descuento aplicado: $" + orderProductDetailDto.getDiscount() + "\n\n" +
-                        "Total: $" + ((product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity()) + "\n\n" +
-                        "¡Gracias por confiar en nosotros!\n" +
-                        "El equipo de Paradiise"
+                emailBody.toString()
         );
 
         return Map.of("STATUS", "CREATED COMPLETED");
     }
+
 
     @Override
     public List<OrderProductDetailResponse> getAllOrderProductDetail() {
