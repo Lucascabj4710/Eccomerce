@@ -206,6 +206,7 @@ public class ProductServiceImpl implements ProductService {
             product.setMaterial(productDto.getMaterial());
             product.setWaist(productDto.getWaist());
             product.setCategory(category);
+            product.setDescription(productDto.getDescription());
 
             // Si viene un archivo, validamos igual que en createProduct
             if (file != null && !file.isEmpty()) {

@@ -17,6 +17,7 @@ public class ProductDto {
     private String material;
     private String waist;
     private Integer stock;
+    private String description;
 
 
 

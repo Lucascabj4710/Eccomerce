@@ -26,6 +26,7 @@ public class ProductMapper {
             propertyMapper.addMapping(ProductDto::getColor, Product::setColor);
             propertyMapper.addMapping(ProductDto::getMaterial, Product::setMaterial);
             propertyMapper.addMapping(ProductDto::getWaist, Product::setWaist);
+            propertyMapper.addMapping(ProductDto::getDescription, Product::setDescription);
         }
 
         return modelMapper.map(productDto, Product.class);

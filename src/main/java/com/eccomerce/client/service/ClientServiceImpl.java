@@ -49,6 +49,16 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
+    public Map<String, String> createClientAdmin(ClientDto clientDto) {
+        Client client = convertToClient(clientDto);
+        client.setUserEntity(userEntityService.createUserEntity(clientDto.getUserEntityDto().getUsername(), clientDto.getUserEntityDto().getPassword()));
+
+        clientRepository.save(client);
+
+        return Map.of("COMPLETED", "CLIENT CREATED");
+    }
+
+    @Override
     public List<ClientResponseDto> getClients() {
 
         return clientRepository.findAll().stream()

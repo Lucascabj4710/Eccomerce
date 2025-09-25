@@ -58,7 +58,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.PATCH, "/client/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.GET, "/client/get/**").hasRole("ADMIN");
                     // Producto detalle de ordenes
-                    auth.requestMatchers(HttpMethod.GET, "/orderDetail/get/*").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET, "/orderDetail").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.DELETE, "/orderDetail/delete/**").hasRole("ADMIN");
                     // Productos
                     auth.requestMatchers(HttpMethod.POST,"/products/create").hasRole("ADMIN");

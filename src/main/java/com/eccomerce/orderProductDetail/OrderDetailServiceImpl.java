@@ -68,7 +68,9 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
                     .build();
 
             orderProductDetail.setOrder(order);
+
             orderProductDetailRepository.save(orderProductDetail);
+            productRepository.discountProductStock(orderProductDetailDto.getQuantity(), product.getId());
 
             // Calculo subtotal
             double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();

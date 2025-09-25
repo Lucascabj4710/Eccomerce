@@ -12,6 +12,10 @@ public interface ClientService {
     // Crear cliente
     public Map<String, String> createClient(ClientDto clientDto);
 
+    // Crear cliente Admin
+    public Map<String, String> createClientAdmin(ClientDto clientDto);
+
+
     // Obtener clientes
     public List<ClientResponseDto> getClients();
 
