@@ -80,10 +80,14 @@ public class SecurityConfig {
                     // Mail
                     auth.requestMatchers(HttpMethod.GET, "Mail/**").permitAll();
 
+                    // MercadoPago
+                    auth.requestMatchers(HttpMethod.POST, "/mp/**").permitAll();
+                    auth.requestMatchers(HttpMethod.POST, "/mp/**").permitAll();
 
 
 
-                    auth.anyRequest().authenticated();
+
+                    auth.anyRequest().permitAll();
                 })
 
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)

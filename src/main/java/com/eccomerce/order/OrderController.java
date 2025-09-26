@@ -21,7 +21,7 @@ public class OrderController {
         return new ResponseEntity<>(orderService.changeStateOrder(status, idOrder), HttpStatus.OK);
     }
 
-    @PostMapping("buyCart")
+    @GetMapping("buyCart")
     public ResponseEntity<?> buyCart(){
 
         return new ResponseEntity<>(orderService.buyCart(), HttpStatus.OK);

@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public Map<String, String> buyCart() {
 
-        String username = getUsername();
+        String username = "lucas";
         Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
 
         Cart cart = cartRepository.findByClientId(client.getId()).orElseThrow(()-> new CartNotFoundException("Error carrito no existente"));

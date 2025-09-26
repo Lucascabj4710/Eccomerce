@@ -28,7 +28,16 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // Ignorar JWT para el webhook de Mercado Pago
+        if (path.equals("/mp/ipn")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token != null) {
@@ -47,7 +56,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         }
 
-        filterChain.doFilter(request,response);
-
+        filterChain.doFilter(request, response);
     }
 }
