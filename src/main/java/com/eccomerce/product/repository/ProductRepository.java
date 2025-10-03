@@ -41,6 +41,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Todos los productos ENABLED
     @Query("SELECT p FROM Product p WHERE p.isEnabled = com.eccomerce.product.entity.IsEnabledEnum.ENABLED")
-    Page<Product> findAll(Pageable pageable);
+    Page<Product> findAllEnabled(Pageable pageable);
 
 }

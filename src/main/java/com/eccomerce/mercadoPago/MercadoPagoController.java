@@ -38,7 +38,7 @@ public class MercadoPagoController {
         product.setColor("Verde");
         product.setMaterial("Plata 925");
         product.setWaist(null);
-        product.setIsEnabledEnum("ENABLED");
+        product.setIsEnabled("ENABLED");
 
         cartDetail.setProductResponseDto(product);
         cartDetail.setQuantity(1L);
@@ -59,7 +59,7 @@ public class MercadoPagoController {
         product2.setColor("Plateadito");
         product2.setMaterial("Plata 925");
         product2.setWaist("11");
-        product2.setIsEnabledEnum("ENABLED");
+        product2.setIsEnabled("ENABLED");
 
         cartDetail2.setProductResponseDto(product);
         cartDetail2.setQuantity(1L);

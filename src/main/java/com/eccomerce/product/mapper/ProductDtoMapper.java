@@ -26,7 +26,7 @@ public class ProductDtoMapper {
 
         // Null-safe para enum
         if (product.getIsEnabled() != null) {
-            dto.setIsEnabledEnum(product.getIsEnabled().name());
+            dto.setIsEnabled(product.getIsEnabled().name());
         }
 
         return dto;

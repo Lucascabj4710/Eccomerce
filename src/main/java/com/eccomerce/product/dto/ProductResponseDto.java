@@ -15,7 +15,7 @@ public class ProductResponseDto {
     private String color;
     private String material;
     private String waist;
-    private String isEnabledEnum;
+    private String isEnabled;
 
 
 }

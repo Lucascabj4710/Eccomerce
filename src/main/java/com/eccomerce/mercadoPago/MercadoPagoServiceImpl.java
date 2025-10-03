@@ -58,7 +58,7 @@ public class MercadoPagoServiceImpl implements MercadoPagoService{
         }
 
         PreferenceBackUrlsRequest preferenceBackUrlsRequest = PreferenceBackUrlsRequest.builder()
-                .success("https://abcd1234.ngrok-free.dev/order/buyCart")
+                .success("http://127.0.0.1:5501/html/index.html")
                 .failure("https://x.com/home")
                 .build();
 

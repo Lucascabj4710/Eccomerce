@@ -18,6 +18,8 @@ public interface ProductService {
     // Obtener productos
     public Page<ProductResponseDto> getProducts(String name, String material, int page, int size, String sortBy, String direction);
 
+    public Page<ProductResponseDto> getProductsAll(Pageable pageable);
+
     public Page<Product> getProductsByMaterial(String material, Pageable pageable);
 
     // Obtener producto por ID
@@ -31,5 +33,7 @@ public interface ProductService {
 
     // Actualizar producto por el nombre
     public Map<String, String> updateProduct(String name, ProductDto product, MultipartFile archivo);
+
+    public Map<String, String> updateStatus(Long id);
 
 }

@@ -148,10 +148,18 @@ public class ProductServiceImpl implements ProductService {
            return products.map(productDtoMapper::converterToProductResponseDto);
 
         } else {
-            Page<Product> products = productRepository.findAll(pageable);
+            Page<Product> products = productRepository.findAllEnabled(pageable);
             return products.map(productDtoMapper::converterToProductResponseDto);
         }
     }
+
+    @Override
+    public Page<ProductResponseDto> getProductsAll(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(productDtoMapper::converterToProductResponseDto);
+    }
+
+
 
     @Override
     public Page<Product> getProductsByMaterial(String material, Pageable pageable) {
@@ -245,6 +253,22 @@ public class ProductServiceImpl implements ProductService {
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> updateStatus(Long id) {
+
+        Product product = productRepository.findById(id).orElseThrow(()-> new ProductNotFoundException("El ID ingresado no corresponde con ningun producto"));
+        if (product.getIsEnabled().name().equals("ENABLED")){
+            product.setIsEnabled(IsEnabledEnum.DISABLED);
+        } else {
+            product.setIsEnabled(IsEnabledEnum.ENABLED);
+        }
+
+
+
+        return Map.of("Correcto", "Cambio");
     }
 
 

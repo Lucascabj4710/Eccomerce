@@ -60,6 +60,13 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProducts(name,material, page,size,sortBy,direction), HttpStatus.OK);
     }
 
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAllProducts(@PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        return new ResponseEntity<>(productService.getProductsAll(pageable), HttpStatus.OK);
+    }
+
+
+
 
     @PutMapping("/update/{name}")
     public ResponseEntity<?> updateProduct(
@@ -75,6 +82,12 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(@PathVariable Long id){
 
         return new ResponseEntity<>(productService.deleteProduct(id), HttpStatus.OK);
+    }
+
+    @PostMapping("/updateStatus/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id){
+
+        return new ResponseEntity<>(productService.updateStatus(id), HttpStatus.OK);
     }
 
 
