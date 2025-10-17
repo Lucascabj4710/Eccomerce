@@ -42,19 +42,16 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
         Client client = clientRepository.findByUsername(username)
                 .orElseThrow(() -> new ClientNotFoundException(""));
 
-        Order order = orderRepository.findByClient(client.getId()).orElse(Order.builder()
+        Order order = Order.builder()
                 .client(client)
                 .orderStatus(OrderStatus.PENDING)
-                .build());
+                .build();
         orderRepository.save(order);
 
-        // --- Para armar el mail ---
-        StringBuilder emailBody = new StringBuilder();
-        double totalCompra = 0.0;
-
-        emailBody.append("Hola ").append(client.getName()).append(",\n\n")
-                .append("Hemos recibido tu pedido y se está procesando correctamente.\n\n")
-                .append("Detalles de tu compra:\n");
+        // ❌ Eliminado: construcción de email
+        // StringBuilder emailBody = new StringBuilder();
+        // double totalCompra = 0.0;
+        // emailBody.append("Hola ").append(client.getName())...
 
         for (OrderProductDetailDto orderProductDetailDto : detailDtoList) {
             Product product = productRepository.findByName(orderProductDetailDto.getProductName())
@@ -72,32 +69,22 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
             orderProductDetailRepository.save(orderProductDetail);
             productRepository.discountProductStock(orderProductDetailDto.getQuantity(), product.getId());
 
-            // Calculo subtotal
-            double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();
-            totalCompra += subtotal;
-
-            // Agrego info del producto al mail
-            emailBody.append("- ").append(product.getName())
-                    .append(" | Cantidad: ").append(orderProductDetailDto.getQuantity())
-                    .append(" | Precio unitario: $").append(product.getPrice())
-                    .append(" | Descuento: $").append(orderProductDetailDto.getDiscount())
-                    .append(" | Subtotal: $").append(subtotal)
-                    .append("\n");
+            // ❌ Eliminado: cálculo y agregado al email
+            // double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();
+            // totalCompra += subtotal;
+            // emailBody.append(...);
         }
 
-        emailBody.append("\nTotal de la compra: $").append(totalCompra).append("\n\n")
-                .append("¡Gracias por confiar en nosotros!\n")
-                .append("El equipo de Paradiise");
-
-        // Envio un solo mail al final
-        emailService.sendEmail(
-                client.getEmail(),
-                "¡Gracias por tu compra!",
-                emailBody.toString()
-        );
+        // ❌ Eliminado: envío de mail
+        // emailService.sendEmail(
+        //         client.getEmail(),
+        //         "¡Gracias por tu compra!",
+        //         emailBody.toString()
+        // );
 
         return Map.of("STATUS", "CREATED COMPLETED");
     }
+
 
 
     @Override

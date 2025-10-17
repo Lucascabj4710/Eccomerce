@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import com.eccomerce.product.entity.IsEnabledEnum;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -215,6 +216,7 @@ public class ProductServiceImpl implements ProductService {
             product.setWaist(productDto.getWaist());
             product.setCategory(category);
             product.setDescription(productDto.getDescription());
+            product.setStock(productDto.getStock());
 
             // Si viene un archivo, validamos igual que en createProduct
             if (file != null && !file.isEmpty()) {
@@ -233,6 +235,20 @@ public class ProductServiceImpl implements ProductService {
                     return Map.of("ERROR", "Tipo de archivo no permitido. Solo se aceptan: " + extensionesPermitidas);
                 }
 
+                // 🔹 Eliminar imagen anterior si existe
+                if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+                    try {
+                        // Tu imagen se guarda como /imgfolder/xxx.ext → extraemos solo el nombre
+                        String oldImageName = Paths.get(product.getImageUrl()).getFileName().toString();
+                        Path oldImagePath = Paths.get(imgFolder).toAbsolutePath().resolve(oldImageName);
+                        Files.deleteIfExists(oldImagePath);
+                        logger.info("[UPDATE_PRODUCT] Imagen anterior eliminada: {}", oldImagePath);
+                    } catch (IOException e) {
+                        logger.warn("[UPDATE_PRODUCT] No se pudo eliminar la imagen anterior: {}", e.getMessage());
+                    }
+                }
+
+                // 🔹 Guardar nueva imagen
                 String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
                 Path uploadDir = Paths.get(imgFolder).toAbsolutePath();
                 Path rutaArchivo = uploadDir.resolve(nombreArchivo);
@@ -254,6 +270,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
 
     @Override
     @Transactional
