@@ -17,6 +17,7 @@ public class ProductResponseDto {
     private String waist;
     private int stock;
     private String isEnabled;
+    private String description;
 
 
 }

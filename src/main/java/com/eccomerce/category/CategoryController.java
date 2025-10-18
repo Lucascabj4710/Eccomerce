@@ -30,7 +30,7 @@ public class CategoryController {
     public ResponseEntity<?> createCategory(@RequestBody CategoryDto categoryDto){
 
         categoryService.createCategory(categoryDto);
-        return ResponseEntity.status(HttpStatus.OK).body("La operacion se realizo con exito");
+        return ResponseEntity.status(HttpStatus.CREATED).body("La operacion se realizo con exito");
     }
 
     @DeleteMapping("delete/{id}")

@@ -44,6 +44,10 @@ public class ProductServiceImpl implements ProductService {
     @Value("${img.folder.path}")
     private String imgFolder;
 
+    // Validar tamaño (ej: max 5MB)
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+
     public ProductServiceImpl(ProductMapper productMapper, ProductDtoMapper productDtoMapper,
                               ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productMapper = productMapper;
@@ -64,6 +68,11 @@ public class ProductServiceImpl implements ProductService {
             if (originalFilename == null || originalFilename.trim().isEmpty()) {
                 logger.warn("[CREATE_PRODUCT] Nombre de archivo no válido");
                 return Map.of("ERROR", "Nombre de archivo inválido");
+            }
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException(
+                        "El archivo es demasiado grande. Máximo permitido: 5MB");
             }
 
             // Obtenemos la extensión (ya limpia)
@@ -110,7 +119,6 @@ public class ProductServiceImpl implements ProductService {
             logger.error("[CREATE_PRODUCT] Error de acceso a datos: {}", e.getMessage(), e);
             response.put("status", "Error");
             response.put("mensaje", "Error al intentar crear producto");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return response;
         } catch (IOException e) {
             logger.error("[CREATE_PRODUCT] Error de IO al procesar archivo: {}", e.getMessage(), e);
@@ -225,6 +233,10 @@ public class ProductServiceImpl implements ProductService {
                 if (originalFilename == null || originalFilename.trim().isEmpty()) {
                     logger.warn("[UPDATE_PRODUCT] Nombre de archivo no válido");
                     return Map.of("ERROR", "Nombre de archivo inválido");
+                }
+                if (file.getSize() > MAX_FILE_SIZE) {
+                    throw new IllegalArgumentException(
+                            "El archivo es demasiado grande. Máximo permitido: 5MB");
                 }
 
                 String extension = FilenameUtils.getExtension(originalFilename.trim()).toLowerCase();

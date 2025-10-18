@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("Mail")
 public class MailController {
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
+
+    public MailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     @GetMapping("/test-email")
     public String testEmail() {

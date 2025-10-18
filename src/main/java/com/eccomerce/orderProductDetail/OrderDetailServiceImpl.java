@@ -40,11 +40,12 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
 
         String username = getCurrentUsername();
         Client client = clientRepository.findByUsername(username)
-                .orElseThrow(() -> new ClientNotFoundException(""));
+                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado con username: " + username));
 
         Order order = Order.builder()
                 .client(client)
                 .orderStatus(OrderStatus.PENDING)
+                .priceFinal(0.0F)
                 .build();
         orderRepository.save(order);
 
@@ -55,7 +56,7 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
 
         for (OrderProductDetailDto orderProductDetailDto : detailDtoList) {
             Product product = productRepository.findByName(orderProductDetailDto.getProductName())
-                    .orElseThrow(() -> new ClientNotFoundException("El producto no existe"));
+                    .orElseThrow(() -> new ProductNotFoundException("El producto no existe"));
 
             OrderProductDetail orderProductDetail = OrderProductDetail.builder()
                     .product(product)
@@ -64,8 +65,11 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
                     .quantity(orderProductDetailDto.getQuantity())
                     .build();
 
+            order.setPriceFinal(order.getPriceFinal() + (orderProductDetail.getUnitPrice() * orderProductDetailDto.getQuantity()) );
             orderProductDetail.setOrder(order);
 
+
+            orderRepository.save(order);
             orderProductDetailRepository.save(orderProductDetail);
             productRepository.discountProductStock(orderProductDetailDto.getQuantity(), product.getId());
 
