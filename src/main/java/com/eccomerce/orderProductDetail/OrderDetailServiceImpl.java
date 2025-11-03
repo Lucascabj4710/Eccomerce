@@ -49,10 +49,11 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
                 .build();
         orderRepository.save(order);
 
-        // ❌ Eliminado: construcción de email
-        // StringBuilder emailBody = new StringBuilder();
-        // double totalCompra = 0.0;
-        // emailBody.append("Hola ").append(client.getName())...
+        StringBuilder emailBody = new StringBuilder();
+        double totalCompra = 0.0;
+        emailBody.append("Hola ").append(client.getName()).append(",\n\n")
+                .append("Gracias por tu compra en Paradiise 💎\n\n")
+                .append("Detalles de tu pedido:\n\n");
 
         for (OrderProductDetailDto orderProductDetailDto : detailDtoList) {
             Product product = productRepository.findByName(orderProductDetailDto.getProductName())
@@ -65,29 +66,37 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
                     .quantity(orderProductDetailDto.getQuantity())
                     .build();
 
-            order.setPriceFinal(order.getPriceFinal() + (orderProductDetail.getUnitPrice() * orderProductDetailDto.getQuantity()) );
+            order.setPriceFinal(order.getPriceFinal() + (orderProductDetail.getUnitPrice() * orderProductDetailDto.getQuantity()));
             orderProductDetail.setOrder(order);
-
 
             orderRepository.save(order);
             orderProductDetailRepository.save(orderProductDetail);
             productRepository.discountProductStock(orderProductDetailDto.getQuantity(), product.getId());
 
-            // ❌ Eliminado: cálculo y agregado al email
-            // double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();
-            // totalCompra += subtotal;
-            // emailBody.append(...);
+            double subtotal = (product.getPrice() - orderProductDetailDto.getDiscount()) * orderProductDetailDto.getQuantity();
+            totalCompra += subtotal;
+
+            emailBody.append("- ")
+                    .append(product.getName())
+                    .append(" x").append(orderProductDetailDto.getQuantity())
+                    .append(" → $").append(String.format("%.2f", subtotal))
+                    .append("\n");
         }
 
-        // ❌ Eliminado: envío de mail
-        // emailService.sendEmail(
-        //         client.getEmail(),
-        //         "¡Gracias por tu compra!",
-        //         emailBody.toString()
-        // );
+        emailBody.append("\nTotal de la compra: $").append(String.format("%.2f", totalCompra))
+                .append("\n\nTu pedido se encuentra en estado: ")
+                .append(order.getOrderStatus())
+                .append("\n\n¡Gracias por elegirnos!\nEquipo Paradiise 💎");
+
+        emailService.sendEmail(
+                client.getEmail(),
+                "¡Gracias por tu compra en Paradiise!",
+                emailBody.toString()
+        );
 
         return Map.of("STATUS", "CREATED COMPLETED");
     }
+
 
 
 
