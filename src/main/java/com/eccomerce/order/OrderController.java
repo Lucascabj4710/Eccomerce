@@ -15,11 +15,19 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PatchMapping("patch/{idOrder}/{status}")
-    public ResponseEntity<?> modifyStatus(@PathVariable Long idOrder, @PathVariable String status){
+    @GetMapping("getAll")
+    public ResponseEntity<?> getAll(){
 
-        return new ResponseEntity<>(orderService.changeStateOrder(status, idOrder), HttpStatus.OK);
+        return new ResponseEntity<>(orderService.getOrders(), HttpStatus.OK);
     }
+
+
+    @PatchMapping("patch/{idOrder}/{status}/{clientId}")
+    public ResponseEntity<?> modifyStatus(@PathVariable Long idOrder, @PathVariable String status, @PathVariable Long clientId){
+
+        return new ResponseEntity<>(orderService.changeStateOrder(status, idOrder, clientId), HttpStatus.OK);
+    }
+
 
     @GetMapping("buyCart")
     public ResponseEntity<?> buyCart(){

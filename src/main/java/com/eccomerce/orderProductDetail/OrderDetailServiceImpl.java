@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,30 @@ public class OrderDetailServiceImpl implements OrderProductDetailService{
         );
 
         return Map.of("STATUS", "CREATED COMPLETED");
+    }
+
+    @Override
+    public List<OrderProductDetailResponse> getAllOrderProductDetails(Long orderId, Long clientId) {
+
+        Client client = clientRepository.findById(clientId).orElseThrow(()-> new ClientNotFoundException("El cliente con ese ID no existe"));
+
+        List<OrderProductDetail> orderProductDetailList = orderProductDetailRepository.findByClientAndOrder(clientId, orderId);
+
+
+        return orderProductDetailList.stream()
+                .map(orderProductDetail -> {
+                    return OrderProductDetailResponse.builder()
+                            .productName(orderProductDetail.getProduct().getName())
+                            .idProduct(orderProductDetail.getProduct().getId())
+                            .discount(orderProductDetail.getDiscount())
+                            .unitPrice(orderProductDetail.getUnitPrice())
+                            .priceFinal(orderProductDetail.getPriceFinal())
+                            .idOrder(orderProductDetail.getOrder().getId())
+                            .quantity(orderProductDetail.getQuantity())
+                            .clientName(client.getName() + " " + client.getLastName())
+                            .idClient(client.getId())
+                            .build();
+                }).toList();
     }
 
 

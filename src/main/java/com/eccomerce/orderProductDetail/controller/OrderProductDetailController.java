@@ -24,11 +24,13 @@ public class OrderProductDetailController {
         return new ResponseEntity<>(orderDetailService.createOrderProductDetail(orderProductDetail), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getOrderDetail(){
+    @GetMapping("{orderId}/{clientId}")
+    public ResponseEntity<?> getOrderDetailAdmin(@PathVariable Long orderId, @PathVariable Long clientId){
 
-        return ResponseEntity.status(HttpStatus.OK).body(orderDetailService.getAllOrderProductDetail());
+        return ResponseEntity.status(HttpStatus.OK).body(orderDetailService.getAllOrderProductDetails(orderId, clientId));
     }
+
+
 
 
 

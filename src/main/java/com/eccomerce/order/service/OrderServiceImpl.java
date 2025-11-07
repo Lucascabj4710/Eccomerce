@@ -8,11 +8,8 @@ import com.eccomerce.cartDetail.exception.CartDetailNotFoundException;
 import com.eccomerce.cartDetail.repository.CartDetailRepository;
 import com.eccomerce.client.exception.ClientNotFoundException;
 import com.eccomerce.client.entity.Client;
-import com.eccomerce.order.Order;
-import com.eccomerce.order.OrderStatus;
+import com.eccomerce.order.*;
 import com.eccomerce.client.repository.ClientRepository;
-import com.eccomerce.order.OrderRepository;
-import com.eccomerce.order.OrderStatusNotFound;
 import com.eccomerce.orderProductDetail.OrderProductDetail;
 import com.eccomerce.orderProductDetail.OrderProductDetailRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,17 +30,29 @@ public class OrderServiceImpl implements OrderService{
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final OrderProductDetailRepository orderProductDetailRepository;
+    private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository, OrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.cartRepository = cartRepository;
         this.cartDetailRepository = cartDetailRepository;
         this.orderProductDetailRepository = orderProductDetailRepository;
+        this.orderMapper = orderMapper;
+    }
+
+
+    @Override
+    public List<OrderDto> getOrders() {
+
+        List<OrderDto> orderDtos = orderRepository.findAll().stream().map(orderMapper::convertOrderToOrderDto).toList();
+
+
+        return orderDtos;
     }
 
     @Override
-    public Map<String, String> changeStateOrder(String status, Long idOrder) {
+    public Map<String, String> changeStateOrder(String status, Long idOrder, Long clientId) {
 
         List<OrderStatus> statusList = List.of(OrderStatus.values());
 
@@ -51,9 +60,8 @@ public class OrderServiceImpl implements OrderService{
                 .filter(orderStatus1 -> status.toUpperCase().equals(orderStatus1.name()))
                 .findFirst().orElseThrow(()-> new OrderStatusNotFound("El estado de la orden '" + status + "' no es válido"));
 
-        String username = getUsername();
 
-        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
+        Client client = clientRepository.findById(clientId).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
 
         Order order = orderRepository.findByClientAndOrderID(client.getId(), idOrder).orElseThrow(()-> new OrderStatusNotFound( "La orden con ID " + idOrder + " no existe o no pertenece al cliente actual"));
 
