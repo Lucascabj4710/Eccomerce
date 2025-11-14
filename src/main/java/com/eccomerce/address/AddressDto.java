@@ -12,6 +12,8 @@ import lombok.*;
 @NoArgsConstructor
 public class AddressDto {
 
+    private Long id;
+
     @NotBlank(message = "El código postal es obligatorio")
     private String zipCode;  // Sin límite de dígitos
 

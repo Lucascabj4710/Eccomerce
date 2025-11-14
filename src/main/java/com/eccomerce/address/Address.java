@@ -36,8 +36,10 @@ public class Address {
     @Column(nullable = false)
     private String province;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id")
     @JsonBackReference
     private Client client;
+
 
 }

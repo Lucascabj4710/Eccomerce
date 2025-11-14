@@ -53,7 +53,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.DELETE, "/category/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.PATCH, "/category/**").hasRole("ADMIN");
                     // Clientes
-                    auth.requestMatchers(HttpMethod.POST, "/client/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.POST, "/client/**").permitAll();
                     auth.requestMatchers(HttpMethod.DELETE, "/client/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.PATCH, "/client/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.GET, "/client/get/**").hasRole("ADMIN");

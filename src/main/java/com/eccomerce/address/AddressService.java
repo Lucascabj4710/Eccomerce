@@ -1,8 +1,11 @@
 package com.eccomerce.address;
 
+import java.util.List;
+
 public interface AddressService {
 
     public void createAddress(AddressDto addressDto);
-    public AddressDto getAddress(Long clientId);
+    public List<AddressDto> getAddress();
+    public void updateAddress(Long idAddress, AddressDto addressDto);
 
 }

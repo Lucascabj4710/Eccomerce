@@ -16,4 +16,6 @@ public interface OrderService {
 
     public Map<String, String> buyCart();
 
+    List<OrderDto> getOrdersOfClient(Long clientId);
+
 }

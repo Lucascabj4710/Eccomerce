@@ -6,6 +6,8 @@ import com.eccomerce.client.repository.ClientRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AddressServiceImpl implements AddressService{
 
@@ -32,14 +34,29 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    public AddressDto getAddress(Long clientId) {
+    public List<AddressDto> getAddress() {
 
         String username = getUsername();
-        Client client = clientRepository.findByUsername(username).orElseThrow(()-> new ClientNotFoundException("Error el cliente solicitado no existe"));
 
 
+        return addressRepository.findByClientId(1L).stream()
+                .map(addressMapper::convertAddressToAddressDto)
+                .toList();
+    }
 
-        return null;
+    @Override
+    public void updateAddress(Long idAddress, AddressDto addressDto) {
+
+        Address address = addressRepository.findById(idAddress).orElseThrow(()-> new RuntimeException("NO existe la direccion indicada"));
+
+        address.setDepartment(addressDto.getDepartment());
+        address.setFloor(addressDto.getFloor());
+        address.setGame(addressDto.getGame());
+        address.setNumberStreet(addressDto.getNumberStreet());
+        address.setZipCode(addressDto.getZipCode());
+        address.setProvince(addressDto.getProvince());
+
+        addressRepository.save(address);
     }
 
 

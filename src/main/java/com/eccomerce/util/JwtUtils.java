@@ -36,7 +36,7 @@ public class JwtUtils {
                 .withIssuer(userGenerator)
                 .withSubject(username)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 21600000))
                 .withClaim("roles", roles)
                 .withJWTId(UUID.randomUUID().toString())
                 .sign(algorithm);

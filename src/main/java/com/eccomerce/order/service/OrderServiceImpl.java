@@ -12,6 +12,9 @@ import com.eccomerce.order.*;
 import com.eccomerce.client.repository.ClientRepository;
 import com.eccomerce.orderProductDetail.OrderProductDetail;
 import com.eccomerce.orderProductDetail.OrderProductDetailRepository;
+import com.eccomerce.product.entity.Product;
+import com.eccomerce.product.exception.ProductNotFoundException;
+import com.eccomerce.product.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,14 +33,16 @@ public class OrderServiceImpl implements OrderService{
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final OrderProductDetailRepository orderProductDetailRepository;
+    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository, OrderMapper orderMapper) {
+    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository, ProductRepository productRepository, OrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.cartRepository = cartRepository;
         this.cartDetailRepository = cartDetailRepository;
         this.orderProductDetailRepository = orderProductDetailRepository;
+        this.productRepository = productRepository;
         this.orderMapper = orderMapper;
     }
 
@@ -57,20 +62,48 @@ public class OrderServiceImpl implements OrderService{
         List<OrderStatus> statusList = List.of(OrderStatus.values());
 
         OrderStatus orderStatus = statusList.stream()
-                .filter(orderStatus1 -> status.toUpperCase().equals(orderStatus1.name()))
-                .findFirst().orElseThrow(()-> new OrderStatusNotFound("El estado de la orden '" + status + "' no es válido"));
+                .filter(os -> status.equalsIgnoreCase(os.name()))
+                .findFirst()
+                .orElseThrow(() -> new OrderStatusNotFound(
+                        "El estado de la orden '" + status + "' no es válido"
+                ));
 
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ClientNotFoundException(
+                        "El cliente no ha sido encontrado"
+                ));
 
-        Client client = clientRepository.findById(clientId).orElseThrow(()-> new ClientNotFoundException("El cliente no ha sido encontrado"));
+        Order order = orderRepository.findByClientAndOrderID(client.getId(), idOrder)
+                .orElseThrow(() -> new OrderStatusNotFound(
+                        "La orden con ID " + idOrder + " no existe o no pertenece al cliente actual"
+                ));
 
-        Order order = orderRepository.findByClientAndOrderID(client.getId(), idOrder).orElseThrow(()-> new OrderStatusNotFound( "La orden con ID " + idOrder + " no existe o no pertenece al cliente actual"));
-
+        // Cambiar estado
         order.setOrderStatus(orderStatus);
-
         orderRepository.save(order);
 
-        return Map.of("Status", "Operacion realizado con exito");
+        // -------------------------------------
+        //    SI SE CANCELA, DEVOLVER STOCK
+        // -------------------------------------
+        if (orderStatus == OrderStatus.CANCELLED) {
+
+            List<OrderProductDetail> details =
+                    orderProductDetailRepository.findByOrderId(order.getId());
+
+            for (OrderProductDetail detail : details) {
+                Product product = productRepository.findById(detail.getProduct().getId())
+                        .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado"));
+
+                // Devolver stock
+                product.setStock((int) (product.getStock() + detail.getQuantity()));
+
+                productRepository.save(product);
+            }
+        }
+
+        return Map.of("Status", "Operación realizada con éxito");
     }
+
 
     @Override
     @Transactional
@@ -116,6 +149,11 @@ public class OrderServiceImpl implements OrderService{
         cartDetailRepository.deleteAll(cartDetails);
 
         return Map.of("STATUS", "Operacion realizada con exito");
+    }
+
+    @Override
+    public List<OrderDto> getOrdersOfClient(Long clientId) {
+        return List.of();
     }
 
 

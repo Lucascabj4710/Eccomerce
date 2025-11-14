@@ -23,10 +23,18 @@ public class AddressController {
         return new ResponseEntity<>("COMPLETED", HttpStatus.CREATED);
     }
 
-    @PostMapping("get")
-    public ResponseEntity<?> getAddress(@PathVariable Long clienteId){
+    @GetMapping("get")
+    public ResponseEntity<?> getAddress(){
 
-        return new ResponseEntity<>("COMPLETED", HttpStatus.CREATED);
+        return new ResponseEntity<>(addressService.getAddress(), HttpStatus.CREATED);
+    }
+
+    @PutMapping("update/{idAddress}")
+    public ResponseEntity<?> updateAddress(@PathVariable @Valid Long idAddress, @RequestBody AddressDto addressDto){
+
+        addressService.updateAddress(idAddress, addressDto);
+
+        return new ResponseEntity<>("Update", HttpStatus.CREATED);
     }
 
 }
