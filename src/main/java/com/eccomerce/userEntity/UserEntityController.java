@@ -13,11 +13,20 @@ public class UserEntityController {
 
     private final UserEntityServiceImpl userEntityService;
     private final UserDetailService userDetailService;
+    private final AuthServiceImpl authService;
 
-    public UserEntityController(UserEntityServiceImpl userEntityService, UserDetailService userDetailService) {
+    public UserEntityController(UserEntityServiceImpl userEntityService, UserDetailService userDetailService, AuthServiceImpl authService) {
         this.userEntityService = userEntityService;
         this.userDetailService = userDetailService;
+        this.authService = authService;
     }
+
+    @PostMapping("/forgot-password/{email}")
+    public ResponseEntity<?> forgotPassword(@PathVariable String email) {
+        authService.resetPassword(email);
+        return ResponseEntity.ok("Si el correo existe, se envió una nueva contraseña.");
+    }
+
 
 
     @PostMapping("/login")
