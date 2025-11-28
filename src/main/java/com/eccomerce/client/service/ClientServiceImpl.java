@@ -8,6 +8,7 @@ import com.eccomerce.client.exception.ClientDeleteException;
 import com.eccomerce.client.exception.ClientNotFoundException;
 import com.eccomerce.client.exception.ClientUpdateException;
 import com.eccomerce.client.repository.ClientRepository;
+import com.eccomerce.mail.EmailService;
 import com.eccomerce.userEntity.UserEntityServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Conditions;
@@ -28,11 +29,13 @@ public class ClientServiceImpl implements ClientService{
     private final ClientRepository clientRepository;
     private final UserEntityServiceImpl userEntityService;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
-    public ClientServiceImpl(ClientRepository clientRepository, UserEntityServiceImpl userEntityService, ModelMapper modelMapper) {
+    public ClientServiceImpl(ClientRepository clientRepository, UserEntityServiceImpl userEntityService, ModelMapper modelMapper, EmailService emailService) {
         this.clientRepository = clientRepository;
         this.userEntityService = userEntityService;
         this.modelMapper = modelMapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -44,7 +47,24 @@ public class ClientServiceImpl implements ClientService{
 
             clientRepository.save(client);
 
-            return Map.of("COMPLETED", "CLIENT CREATED");
+            StringBuilder emailBody = new StringBuilder();
+
+            emailBody.append("Hola ").append(client.getName() + " " + client.getLastName()).append(",\n\n")
+                    .append("¡Tu cuenta en Paradiise ha sido creada exitosamente! 🎉\n\n")
+                    .append("A partir de este momento ya podés acceder a todos nuestros servicios, realizar compras y gestionar tus datos de manera segura.\n\n")
+                    .append("Si no fuiste vos quien creó esta cuenta, por favor contactate con nuestro equipo de soporte de inmediato.\n\n")
+                    .append("Gracias por elegir Paradiise.\n")
+                    .append("Saludos cordiales,\n")
+                    .append("Equipo de Paradiise");
+
+            emailService.sendEmail(
+                    client.getEmail(),
+                    "Gracias por ser parte de nuestra comunidad",
+                    emailBody.toString()
+            );
+
+
+        return Map.of("COMPLETED", "CLIENT CREATED");
 
     }
 

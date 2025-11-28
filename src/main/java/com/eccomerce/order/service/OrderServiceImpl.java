@@ -8,6 +8,7 @@ import com.eccomerce.cartDetail.exception.CartDetailNotFoundException;
 import com.eccomerce.cartDetail.repository.CartDetailRepository;
 import com.eccomerce.client.exception.ClientNotFoundException;
 import com.eccomerce.client.entity.Client;
+import com.eccomerce.mail.EmailService;
 import com.eccomerce.order.*;
 import com.eccomerce.client.repository.ClientRepository;
 import com.eccomerce.orderProductDetail.OrderProductDetail;
@@ -35,8 +36,9 @@ public class OrderServiceImpl implements OrderService{
     private final OrderProductDetailRepository orderProductDetailRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final EmailService emailService;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository, ProductRepository productRepository, OrderMapper orderMapper) {
+    public OrderServiceImpl(OrderRepository orderRepository, ClientRepository clientRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderProductDetailRepository orderProductDetailRepository, ProductRepository productRepository, OrderMapper orderMapper, EmailService emailService) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.cartRepository = cartRepository;
@@ -44,6 +46,7 @@ public class OrderServiceImpl implements OrderService{
         this.orderProductDetailRepository = orderProductDetailRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
+        this.emailService = emailService;
     }
 
 
